@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./pixel-theme.css";
 export const metadata: Metadata = {
   icons: { icon: "/brand-mark.svg", apple: "/brand-mark.svg" },
   title: "BAGYT AI — От данных к росту",

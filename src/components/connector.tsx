@@ -62,6 +62,27 @@ export default function Connector({
   }
   return (
     <div className="connector-flow">
+      {step < 3 && (
+        <div className="connector-helper">
+          <Robot
+            size={74}
+            state={busy ? "thinking" : step === 2 ? "curious" : "greeting"}
+          />
+          <p>
+            {busy
+              ? t("Сохраняю ваше подключение…", "Қосылымды сақтап жатырмын…")
+              : step === 2
+                ? t(
+                    "Всё под вашим контролем. Дайте разрешение — и готово.",
+                    "Барлығы сіздің бақылауыңызда. Рұқсат берсеңіз — дайын.",
+                  )
+                : t(
+                    "Укажите контакт вашего бизнеса. Я проведу дальше.",
+                    "Бизнес байланысын енгізіңіз. Әрі қарай көмектесемін.",
+                  )}
+          </p>
+        </div>
+      )}
       <div className="connector-steps">
         {[
           t("Контакт", "Байланыс"),

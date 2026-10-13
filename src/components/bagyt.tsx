@@ -53,6 +53,7 @@ import {
 import { api, Logo, Robot, Badge, Modal, Stat, Empty, download } from "./ui";
 import Importer from "./importer";
 import Connector from "./connector";
+import Onboarding from "./onboarding";
 import { money, dayKey, Event, Task, Insight, cents } from "@/lib/types";
 const icons = [LayoutDashboard, Plug, Lightbulb, Route, BarChart3, Settings];
 const keys = [
@@ -368,8 +369,8 @@ export default function Bagyt() {
               <div className="hero-note">
                 <ShieldCheck size={16} />
                 {t(
-                  "Ваши данные · Ваши решения · Измеримый результат",
-                  "Сіздің деректеріңіз · Сіздің шешіміңіз · Өлшенетін нәтиже",
+                  "Меньше минуты на старт · Источники подключите позже",
+                  "Бастауға бір минуттан аз · Дереккөздерді кейін қосасыз",
                 )}
               </div>
             </div>
@@ -380,7 +381,7 @@ export default function Bagyt() {
                 <span className="live-dot" />{" "}
                 {t("AQYL / ВАШ БИЗНЕС-ПОМОЩНИК", "AQYL / БИЗНЕС КӨМЕКШІҢІЗ")}
               </div>
-              <Robot size={195} />
+              <Robot size={235} />
               <h3>
                 AQYL <span>Ақыл</span>
               </h3>
@@ -616,8 +617,12 @@ export default function Bagyt() {
                   <h1>
                     {section === "overview"
                       ? t(
-                          `Бизнес под контролем, ${data.user.name}`,
-                          `Бизнес бақылауда, ${data.user.name}`,
+                          data.user.name === "Владелец"
+                            ? "Ваш бизнес под контролем"
+                            : `Бизнес под контролем, ${data.user.name}`,
+                          data.user.name === "Владелец"
+                            ? "Бизнесіңіз бақылауда"
+                            : `Бизнес бақылауда, ${data.user.name}`,
                         )
                       : (language === "ru" ? ru : kk)[keys.indexOf(section)]}
                     <span className="title-dot">.</span>
@@ -661,8 +666,14 @@ export default function Bagyt() {
                 <>
                   <section className="aqyl-banner">
                     <Robot
-                      size={80}
-                      state={a.insights.length ? "risk" : "success"}
+                      size={125}
+                      state={
+                        busy
+                          ? "thinking"
+                          : a.insights.length
+                            ? "risk"
+                            : "success"
+                      }
                     />
                     <div className="aqyl-banner-copy">
                       <div className="aqyl-label">
@@ -1022,6 +1033,49 @@ export default function Bagyt() {
               )}
               {section === "connect" && (
                 <>
+                  <section className="connect-welcome">
+                    <div>
+                      <span className="pixel-kicker">
+                        {t("ПЕРВЫЕ ШАГИ С AQYL", "AQYL-МЕН АЛҒАШҚЫ ҚАДАМДАР")}
+                      </span>
+                      <h2>
+                        {t(
+                          "Ваш бизнес уже здесь. Давайте подключимся.",
+                          "Бизнесіңіз осында. Дереккөздерді қосайық.",
+                        )}
+                      </h2>
+                      <p>
+                        {t(
+                          "Начните с удобного сервиса. Остальное — когда понадобится.",
+                          "Ыңғайлы сервистен бастаңыз. Қалғанын қажет болғанда қосасыз.",
+                        )}
+                      </p>
+                      <div className="setup-steps">
+                        <span className="complete">
+                          <CheckCircle2 size={16} />
+                          {t("Аккаунт готов", "Аккаунт дайын")}
+                        </span>
+                        <span className="current">
+                          <span>02</span>
+                          {t("Подключите источник", "Дереккөзді қосыңыз")}
+                        </span>
+                        <button onClick={() => nav("overview")}>
+                          {t("К обзору бизнеса", "Бизнеске шолу")}
+                          <ArrowRight size={15} />
+                        </button>
+                      </div>
+                    </div>
+                    <Robot
+                      size={132}
+                      state={
+                        busy
+                          ? "thinking"
+                          : data.sources.some((s: any) => s.connection)
+                            ? "success"
+                            : "greeting"
+                      }
+                    />
+                  </section>
                   <div className="section-intro">
                     <div>
                       <ShieldCheck size={21} />
@@ -1450,7 +1504,7 @@ export default function Bagyt() {
               {section === "growth" && (
                 <>
                   <section className="plan-hero">
-                    <Robot size={78} />
+                    <Robot size={110} state={busy ? "thinking" : "greeting"} />
                     <div>
                       <span className="eyebrow">AQYL GROWTH PLANNER</span>
                       <h2>
@@ -2066,7 +2120,9 @@ export default function Bagyt() {
       {notices}
       {modal && (
         <Modal
-          wide={["import", "evidence", "record"].includes(modal.type)}
+          wide={["import", "evidence", "record", "register"].includes(
+            modal.type,
+          )}
           title={
             modal.type === "connector"
               ? t("Подключение источника", "Дереккөзді қосу")
@@ -2107,7 +2163,24 @@ export default function Bagyt() {
               {error}
             </div>
           )}
-          {["login", "register"].includes(modal.type) && (
+          {modal.type === "register" && (
+            <Onboarding
+              language={language}
+              onLogin={() => open({ type: "login" })}
+              onComplete={async () => {
+                setSection("connect");
+                await reload();
+                close();
+                setToast(
+                  t(
+                    "Добро пожаловать! Подключим первый источник.",
+                    "Қош келдіңіз! Бірінші дереккөзді қосайық.",
+                  ),
+                );
+              }}
+            />
+          )}
+          {modal.type === "login" && (
             <form
               onSubmit={(e) => {
                 const b = form(e);
@@ -2892,7 +2965,7 @@ export default function Bagyt() {
           {modal.type === "chat" && (
             <>
               <div className="chat-intro">
-                <Robot size={62} />
+                <Robot size={95} state={busy ? "thinking" : "greeting"} />
                 <div>
                   <h3>
                     {t(

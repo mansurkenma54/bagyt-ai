@@ -1,16 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none">
-<ellipse cx="120" cy="215" rx="67" ry="10" fill="#000" opacity=".08"/>
-<path d="M85 165h70l13 37H72l13-37Z" fill="#d8d8d6" stroke="#171717" stroke-width="5" stroke-linejoin="round"/>
-<path d="M96 185h48" stroke="#171717" stroke-width="5" stroke-linecap="round"/>
-<rect x="53" y="67" width="134" height="107" rx="36" fill="#f8f8f5" stroke="#171717" stroke-width="6"/>
-<rect x="64" y="83" width="112" height="73" rx="25" fill="#171717"/>
-<path d="M88 111c0-7 11-7 11 0M140 111c0-7 11-7 11 0" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
-<path d="M110 132c6 6 14 6 20 0" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
-<rect x="40" y="103" width="12" height="37" rx="6" fill="#aaa" stroke="#171717" stroke-width="4"/>
-<rect x="188" y="103" width="12" height="37" rx="6" fill="#aaa" stroke="#171717" stroke-width="4"/>
-<path d="M120 64V45" stroke="#aaa" stroke-width="6" stroke-linecap="round"/>
-<path d="m111 43 19-23-3 19 11 1-20 20 3-17h-10Z" fill="#aaa"/>
-<path d="m56 170-18 18m147-18 17 17" stroke="#aaa" stroke-width="8" stroke-linecap="round"/>
-<circle cx="203" cy="187" r="9" fill="#fff" stroke="#171717" stroke-width="4"/>
-<path d="m74 78 18-6" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none" shape-rendering="crispEdges" aria-hidden="true"><ellipse class="pixel-shadow" cx="48" cy="84" rx="29" ry="3" fill="#04bf7530"></ellipse><g class="pixel-body"><path d="M46 27V15h4v12h-4Z" fill="#13e68c"></path><path d="M42 7h12v12H42z" fill="#16e991"></path><path d="M46 11h4v4h-4z" fill="#d2ffe9"></path><path d="M26 23h4v4h8v7h-4v-3h-8v-8Zm40 0h4v8h-8v3h-4v-7h8v-4Z" fill="#00b570"></path><path d="M18 15h12v12H18zM66 15h12v12H66z" fill="#16e991"></path><path d="M22 19h4v4h-4zM70 19h4v4h-4z" fill="#c1ffdf"></path><path d="M22 31h52v4h8v8h4v28h-4v8H14v-8h-4V43h4v-8h8v-4Z" fill="#009a5f"></path><path d="M22 31h52v4h8v8H14v-8h8v-4Z" fill="#78ffbb"></path><path d="M18 39h60v4h4v24h-4v8H18v-8h-4V43h4v-4Z" fill="#10de87"></path><path d="M22 43h52v4h4v20h-4v4H22v-4h-4V47h4v-4Z" fill="#031d13"></path><path d="M4 47h6v20H4zM86 47h6v20h-6z" fill="#20ef98"></path><path d="M18 75h60v4H18zM26 79h44v3H26z" fill="#007c4b"></path><g class="pixel-eyes eye-normal" fill="#1ef7a1"><path d="M29 51h8v8h-8zM59 51h8v8h-8z"></path></g><g class="pixel-eyes eye-happy" fill="#26ffa6"><path d="M27 55v-4h4v-4h8v4h4v4h-4v-4h-8v4h-4ZM55 55v-4h4v-4h8v4h4v4h-4v-4h-8v4h-4Z"></path></g><g class="pixel-eyes eye-curious" fill="#26ffa6"><path d="M27 53h12v4H27zM59 47h8v12h-8zM27 45h12v3H27z"></path></g><g class="pixel-eyes eye-sleepy" fill="#15de8b"><path d="M27 55h14v3H27zM55 55h14v3H55z"></path></g><g class="pixel-eyes eye-thinking" fill="#26ffa6"><path d="M31 51h8v8h-8zM61 51h8v8h-8z"></path></g><path class="pixel-mouth" d="M41 63h4v3h6v-3h4v3h-4v3h-6v-3h-4v-3Z" fill="#13e68c"></path><path class="pixel-cheeks" d="M24 61h8v3h-8zM64 61h8v3h-8z" fill="#09a364"></path></g><g class="thought-pixels" fill="#08d980"><rect x="71" y="4" width="4" height="4"></rect><rect x="79" y="4" width="4" height="4"></rect><rect x="87" y="4" width="4" height="4"></rect></g><g class="sleep-pixels" fill="#00b975"><path d="M79 25h9v3h-3v3h-3v3h6v3h-9v-3h3v-3h3v-3h-6z"></path></g><g class="happy-spark" fill="#0bdd87"><path d="M4 30h4v-4h4v4h4v4h-4v4H8v-4H4z"></path></g><style>.pixel-eyes{display:none}.eye-normal{display:block}.thought-pixels,.sleep-pixels,.happy-spark{display:none}</style></svg>
