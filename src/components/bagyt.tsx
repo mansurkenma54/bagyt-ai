@@ -553,7 +553,13 @@ export default function Bagyt() {
                 <span className="avatar">{data.user.name.slice(0, 1)}</span>
                 <div>
                   <b>{data.user.name}</b>
-                  <small>{data.user.role}</small>
+                  <small>
+                    {data.user.role === "owner"
+                      ? t("Владелец", "Иесі")
+                      : data.user.role === "manager"
+                        ? t("Менеджер", "Менеджер")
+                        : t("Наблюдатель", "Бақылаушы")}
+                  </small>
                 </div>
                 <button
                   className="icon-button"
@@ -1946,20 +1952,24 @@ export default function Bagyt() {
                     <div className="runtime-grid">
                       <div>
                         <Database size={20} />
-                        <b>PostgreSQL / PGlite</b>
-                        <Badge>{t("Локальная база", "Жергілікті база")}</Badge>
+                        <b>{t("Хранение данных", "Деректерді сақтау")}</b>
+                        <Badge>
+                          {data.storage === "cloud"
+                            ? t("Облако подключено", "Бұлт қосылған")
+                            : t("На компьютере", "Компьютерде")}
+                        </Badge>
                       </div>
                       <div>
                         <FileText size={20} />
-                        <b>OCR / Tesseract</b>
+                        <b>{t("Распознавание чеков", "Чектерді тану")}</b>
                         <span>PNG · JPEG · RU / EN</span>
                       </div>
                       <div>
                         <Sparkles size={20} />
-                        <b>AQYL / LLM</b>
+                        <b>{t("Диалог с AQYL", "AQYL-мен диалог")}</b>
                         <Badge color={data.ai.enabled ? "green" : "muted"}>
                           {data.ai.enabled
-                            ? t("Ключ настроен", "Кілт бапталған")
+                            ? t("Подключено", "Қосылған")
                             : t("Не подключено", "Қосылмаған")}
                         </Badge>
                       </div>
@@ -1968,13 +1978,18 @@ export default function Bagyt() {
                         <b>
                           {t("Изоляция компаний", "Компанияларды оқшаулау")}
                         </b>
-                        <span>RLS · server sessions</span>
+                        <span>
+                          {t(
+                            "Доступ только вашей команде",
+                            "Тек командаңызға қолжетімді",
+                          )}
+                        </span>
                       </div>
                     </div>
                     <p className="muted">
                       {t(
-                        "Ключ LLM задается на сервере в .env.local. Без ключа работают расчеты, сигналы и планы по правилам. Социальные сети доступны через разрешенный импорт файлов.",
-                        "LLM кілті серверде .env.local арқылы беріледі. Кілтсіз есептер, белгілер және ережелік жоспарлар жұмыс істейді. Әлеуметтік желілер рұқсат етілген файл импорты арқылы қолжетімді.",
+                        "Расчеты, сигналы и планы работают по проверенным данным. Диалог с AI подключается отдельно. Социальные сервисы доступны в демо-режиме и через импорт файлов.",
+                        "Есептер, белгілер мен жоспарлар тексерілген деректерге сүйенеді. AI-мен диалог бөлек қосылады. Әлеуметтік сервистер демо режимінде және файл импорты арқылы қолжетімді.",
                       )}
                     </p>
                   </section>
@@ -2040,7 +2055,8 @@ export default function Bagyt() {
                   )}
                 </span>
                 <span>
-                  BAGYT AI <span className="footer-dot">•</span> BUSINESS WORKSPACE
+                  BAGYT AI <span className="footer-dot">•</span> BUSINESS
+                  WORKSPACE
                 </span>
               </div>
             </main>
@@ -2237,8 +2253,8 @@ export default function Bagyt() {
               {busy && (
                 <p className="muted">
                   {t(
-                    "Создаем записи в PostgreSQL…",
-                    "PostgreSQL жазбалары жасалуда…",
+                    "Готовим ваш демо-бизнес…",
+                    "Демо-бизнесіңіз дайындалуда…",
                   )}
                 </p>
               )}
@@ -2856,8 +2872,10 @@ export default function Bagyt() {
               <label>
                 {t("Роль", "Рөл")}
                 <select name="role">
-                  <option value="manager">Manager</option>
-                  <option value="viewer">Viewer</option>
+                  <option value="manager">{t("Менеджер", "Менеджер")}</option>
+                  <option value="viewer">
+                    {t("Наблюдатель", "Бақылаушы")}
+                  </option>
                 </select>
               </label>
               <p className="muted">
@@ -2913,8 +2931,8 @@ export default function Bagyt() {
                   ))}
                   <div className="hint">
                     {t(
-                      "Для диалога добавьте OPENAI_API_KEY в .env.local и перезапустите сервер.",
-                      "Диалог үшін .env.local файлына OPENAI_API_KEY қосып, серверді қайта іске қосыңыз.",
+                      "Свободный диалог пока не подключен. Выберите сигнал выше, чтобы увидеть факты и рекомендации, или откройте «План роста».",
+                      "Еркін диалог әзірше қосылмаған. Фактілер мен ұсыныстарды көру үшін жоғарыдағы белгіні таңдаңыз немесе «Өсу жоспарын» ашыңыз.",
                     )}
                   </div>
                 </>

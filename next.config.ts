@@ -8,8 +8,13 @@ const config: NextConfig = {
   ],
   outputFileTracingIncludes: {
     "/api/*": [
-      "./node_modules/tesseract.js/src/worker-script/**",
+      "./node_modules/tesseract.js/src/**",
       "./node_modules/tesseract.js-core/**",
+      "./node_modules/regenerator-runtime/**",
+      "./node_modules/is-url/**",
+      "./node_modules/bmp-js/**",
+      "./node_modules/zlibjs/**",
+      "./node_modules/wasm-feature-detect/**",
     ],
   },
   async headers() {

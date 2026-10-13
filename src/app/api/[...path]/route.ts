@@ -272,6 +272,7 @@ async function handle(req: NextRequest, segments: string[]) {
             "SELECT * FROM import_batches ORDER BY created_at DESC LIMIT 25",
           )
         ).rows,
+        storage: process.env.DATABASE_URL ? "cloud" : "local",
         ai: {
           enabled: !!process.env.OPENAI_API_KEY,
           mode: process.env.OPENAI_API_KEY ? "LLM" : "rules",
