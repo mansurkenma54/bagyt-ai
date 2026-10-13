@@ -54,6 +54,7 @@ import { api, Logo, Robot, Badge, Modal, Stat, Empty, download } from "./ui";
 import Importer from "./importer";
 import Connector from "./connector";
 import Onboarding from "./onboarding";
+import BusinessBrief, { GuidedAssistant } from "./business-brief";
 import { money, dayKey, Event, Task, Insight, cents } from "@/lib/types";
 const icons = [LayoutDashboard, Plug, Lightbulb, Route, BarChart3, Settings];
 const keys = [
@@ -65,18 +66,18 @@ const keys = [
   "settings",
 ];
 const ru = [
-  "Обзор бизнеса",
-  "Источники данных",
-  "Инсайты AQYL",
-  "План роста",
+  "Главное",
+  "Мои данные",
+  "Разбор AQYL",
+  "Мои дела",
   "Результаты",
   "Настройки",
 ];
 const kk = [
-  "Бизнеске шолу",
-  "Дереккөздер",
+  "Басты бет",
+  "Деректерім",
   "AQYL талдауы",
-  "Өсу жоспары",
+  "Істерім",
   "Нәтижелер",
   "Баптаулар",
 ];
@@ -339,11 +340,11 @@ export default function Bagyt() {
                 {t("СОЗДАН ДЛЯ ЛОКАЛЬНОГО БИЗНЕСА", "ЖЕРГІЛІКТІ БИЗНЕС ҮШІН")}
               </span>
               <h1>
-                {t("Ваш бизнес.", "Сіздің бизнесіңіз.")}
+                {t("Своё дело.", "Өз ісің.")}
                 <br />
-                {t("Вся картина.", "Толық көрініс.")}
+                {t("Своя опора.", "Өз тірегің.")}
                 <br />
-                <em>{t("Следующий шаг.", "Келесі қадам.")}</em>
+                <em>{t("AQYL рядом.", "AQYL қасыңда.")}</em>
               </h1>
               <p>
                 {t(
@@ -387,8 +388,8 @@ export default function Bagyt() {
               </h3>
               <p>
                 {t(
-                  "От данных — к уверенным решениям",
-                  "Деректерден — сенімді шешімдерге",
+                  "С пониманием к цифрам. С заботой к вам.",
+                  "Сандарды түсініп, сізге қамқор болады.",
                 )}
               </p>
               <div className="float-card float-one">
@@ -518,6 +519,7 @@ export default function Bagyt() {
             </span>
             <nav>
               {keys.map((key, i) => {
+                if (key === "insights" || key === "results") return null;
                 const Icon = icons[i];
                 return (
                   <button
@@ -618,11 +620,11 @@ export default function Bagyt() {
                     {section === "overview"
                       ? t(
                           data.user.name === "Владелец"
-                            ? "Ваш бизнес под контролем"
-                            : `Бизнес под контролем, ${data.user.name}`,
+                            ? "Сәлем! Как ваше дело?"
+                            : `Сәлем, ${data.user.name}!`,
                           data.user.name === "Владелец"
-                            ? "Бизнесіңіз бақылауда"
-                            : `Бизнес бақылауда, ${data.user.name}`,
+                            ? "Сәлем! Кәсібіңіз қалай?"
+                            : `Сәлем, ${data.user.name}!`,
                         )
                       : (language === "ru" ? ru : kk)[keys.indexOf(section)]}
                     <span className="title-dot">.</span>
@@ -630,8 +632,8 @@ export default function Bagyt() {
                   <p>
                     {section === "overview"
                       ? t(
-                          "Вся картина бизнеса. Главное, что требует вашего внимания.",
-                          "Бизнестің толық көрінісі. Назар аударуды қажет ететін маңызды ақпарат.",
+                          "Главное о вашем бизнесе — простыми словами.",
+                          "Бизнесіңіздегі маңызды ақпарат — қарапайым тілмен.",
                         )
                       : t(
                           "От проверенных фактов — к конкретным действиям.",
@@ -664,371 +666,374 @@ export default function Bagyt() {
               </div>
               {section === "overview" && (
                 <>
-                  <section className="aqyl-banner">
-                    <Robot
-                      size={125}
-                      state={
-                        busy
-                          ? "thinking"
-                          : a.insights.length
-                            ? "risk"
-                            : "success"
-                      }
-                    />
-                    <div className="aqyl-banner-copy">
-                      <div className="aqyl-label">
-                        AQYL{" "}
-                        <span>
-                          · {t("аналитический помощник", "талдау көмекшісі")}
-                        </span>
-                      </div>
-                      <h2>
-                        {a.insights.length
-                          ? t(
-                              `${Math.min(3, a.insights.length)} точки внимания для вашего бизнеса`,
-                              `${Math.min(3, a.insights.length)} назар аудару нүктесі`,
-                            )
-                          : a.coverage.total
-                            ? t(
-                                "Все начинается с проверенных данных",
-                                "Барлығы тексерілген деректерден басталады",
-                              )
-                            : t(
-                                "Давайте познакомимся с вашим бизнесом",
-                                "Бизнесіңізбен танысайық",
-                              )}
-                      </h2>
-                      <p>
-                        {a.coverage.total
-                          ? t(
-                              `Проверено ${a.coverage.verified} записей. ${a.coverage.pending ? `${a.coverage.pending} ждут вашего подтверждения.` : "Новые данные автоматически обновляют показатели."}`,
-                              `${a.coverage.verified} жазба тексерілді. ${a.coverage.pending} жазба растауды күтуде.`,
-                            )
-                          : t(
-                              "Загрузите первый отчет — и я помогу разобраться в показателях.",
-                              "Алғашқы есепті жүктеңіз — көрсеткіштерді түсінуге көмектесемін.",
-                            )}
-                      </p>
-                    </div>
+                  <BusinessBrief
+                    analytics={a}
+                    language={language}
+                    demo={data.org.demo}
+                    owner={owner}
+                    goal={data.org.goal}
+                    onNavigate={nav}
+                    onImport={() =>
+                      open({ type: "import", source: "POS", kind: "sale" })
+                    }
+                    onChat={() => open({ type: "chat" })}
+                    onEvidence={(insight) =>
+                      open({ type: "evidence", insight })
+                    }
+                  />
+                  <div className="overview-links">
                     <button
-                      className="banner-button"
-                      onClick={() =>
-                        nav(a.insights.length ? "insights" : "connect")
-                      }
+                      className="secondary"
+                      onClick={() => nav("insights")}
                     >
-                      {t("Посмотреть", "Қарау")}
-                      <ArrowUpRight size={17} />
+                      <Lightbulb size={18} />
+                      {t("Полный разбор", "Толық талдау")}
                     </button>
-                    <div className="banner-grid" />
-                  </section>
-                  <div className="stats-grid">
-                    <Stat
-                      label={t("Выручка", "Түсім")}
-                      value={money(a.revenue)}
-                      icon={<Wallet size={18} />}
-                      detail={t(
-                        "оплаченные продажи − возвраты",
-                        "төленген сату − қайтару",
-                      )}
-                      trend={
-                        a.priorRevenue > 0
-                          ? `${a.revenue >= a.priorRevenue ? "+" : ""}${Math.round((a.revenue / a.priorRevenue - 1) * 100)}%`
-                          : undefined
-                      }
-                    />
-                    <Stat
-                      label={t("Валовая прибыль", "Жалпы пайда")}
-                      value={a.gross === null ? "—" : money(a.gross)}
-                      icon={<TrendingUp size={18} />}
-                      detail={
-                        a.margin === null
-                          ? t(
-                              "себестоимость неизвестна",
-                              "өзіндік құн белгісіз",
-                            )
-                          : t(`Маржа ${a.margin}%`, `Маржа ${a.margin}%`)
-                      }
-                    />
-                    <Stat
-                      label={t("Расходы", "Шығындар")}
-                      value={money(a.expenses)}
-                      icon={<Receipt size={18} />}
-                      detail={t(
-                        "подтвержденные операции",
-                        "расталған операциялар",
-                      )}
-                    />
-                    <Stat
-                      label={t("Без ответа", "Жауапсыз")}
-                      value={String(a.unanswered).padStart(2, "0")}
-                      icon={<MessageSquare size={18} />}
-                      color="amber-text"
-                      detail={t(
-                        `из ${a.leads} обращений за период`,
-                        `кезеңдегі ${a.leads} өтініштен`,
-                      )}
-                    />
+                    <button
+                      className="secondary"
+                      onClick={() => nav("results")}
+                    >
+                      <BarChart3 size={18} />
+                      {t("Результаты моих действий", "Әрекеттерімнің нәтижесі")}
+                    </button>
                   </div>
-                  <div className="dashboard-grid">
-                    <section className="panel chart-panel">
-                      <div className="panel-heading">
-                        <div>
-                          <h2>{t("Динамика бизнеса", "Бизнес динамикасы")}</h2>
-                          <p>
-                            {fmtDate(a.period.from)} — {fmtDate(a.period.to)} ·
-                            KZT
-                          </p>
-                        </div>
-                        <div className="chart-legend">
-                          <span>
-                            <i /> {t("Выручка", "Түсім")}
-                          </span>
-                          <span>
-                            <i /> {t("Расходы", "Шығындар")}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="chart">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart
-                            data={a.chart}
-                            margin={{ top: 20, right: 8, bottom: 0, left: -15 }}
-                          >
-                            <defs>
-                              <linearGradient
-                                id="revenue"
-                                x1="0"
-                                y1="0"
-                                x2="0"
-                                y2="1"
-                              >
-                                <stop
-                                  offset="0%"
-                                  stopColor="#222222"
-                                  stopOpacity={0.24}
-                                />
-                                <stop
-                                  offset="100%"
-                                  stopColor="#222222"
-                                  stopOpacity={0}
-                                />
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid
-                              stroke="#ececeb"
-                              strokeDasharray="3 5"
-                              vertical={false}
-                            />
-                            <XAxis
-                              dataKey="date"
-                              tickFormatter={(s) =>
-                                fmtDate(s + "T12:00:00+05:00")
-                              }
-                              tick={{ fill: "#888880", fontSize: 11 }}
-                              minTickGap={40}
-                              axisLine={false}
-                              tickLine={false}
-                            />
-                            <YAxis
-                              tickFormatter={(v) => `${v / 1000}k`}
-                              tick={{ fill: "#888880", fontSize: 11 }}
-                              axisLine={false}
-                              tickLine={false}
-                            />
-                            <Tooltip
-                              contentStyle={{
-                                background: "#ffffff",
-                                border: "1px solid #ddddda",
-                                borderRadius: 10,
-                                color: "#222222",
-                              }}
-                              formatter={(v: any, n: any) => [
-                                money(Number(v) * 100),
-                                n === "revenue"
-                                  ? t("Выручка", "Түсім")
-                                  : t("Расходы", "Шығындар"),
-                              ]}
-                            />
-                            <Area
-                              isAnimationActive={false}
-                              dataKey="revenue"
-                              type="monotone"
-                              stroke="#222222"
-                              strokeWidth={2.5}
-                              fill="url(#revenue)"
-                            />
-                            <Area
-                              isAnimationActive={false}
-                              dataKey="expenses"
-                              type="monotone"
-                              stroke="#aaaaa0"
-                              strokeWidth={1.5}
-                              strokeDasharray="4 5"
-                              fill="transparent"
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="chart-footer">
-                        <ShieldCheck size={14} />
+                  {a.coverage.verified > 0 && (
+                    <details className="advanced-overview">
+                      <summary>
                         {t(
-                          "Только подтвержденные записи. Период и формулы доступны в аналитике.",
-                          "Тек расталған жазбалар. Кезең мен формулалар талдауда берілген.",
+                          "Показать графики и все показатели",
+                          "Графиктер мен барлық көрсеткіштерді көрсету",
                         )}
-                      </div>
-                    </section>
-                    <section className="panel focus-panel">
-                      <div className="panel-heading">
-                        <h2>{t("В фокусе", "Назарда")}</h2>
-                        <Badge color="muted">
-                          {t("ПРИОРИТЕТЫ", "БАСЫМДЫҚТАР")}
-                        </Badge>
-                      </div>
-                      {a.insights.slice(0, 3).map((i: Insight, n: number) => (
-                        <button
-                          className="focus-item"
-                          key={i.id}
-                          onClick={() => open({ type: "evidence", insight: i })}
-                        >
-                          <span
-                            className={
-                              "signal-icon " +
-                              (i.severity === "high" ? "amber" : "green")
-                            }
-                          >
-                            {n === 0 ? (
-                              <MessageSquare size={17} />
-                            ) : n === 1 ? (
-                              <TrendingUp size={17} />
-                            ) : (
-                              <Activity size={17} />
-                            )}
-                          </span>
-                          <div>
-                            <h3>{insightTitle(i)}</h3>
-                            <p>{insightFact(i)}</p>
-                            <span>
-                              {t("Открыть доказательства", "Дәлелдерді ашу")}
-                              <ArrowRight size={12} />
-                            </span>
-                          </div>
-                        </button>
-                      ))}
-                      {!a.insights.length && (
-                        <Empty>
-                          {t(
-                            "Нет сигналов. Подключите источники и подтвердите записи.",
-                            "Белгілер жоқ. Дереккөздерді қосып, жазбаларды растаңыз.",
+                      </summary>
+                      <div className="stats-grid">
+                        <Stat
+                          label={t("Выручка", "Түсім")}
+                          value={money(a.revenue)}
+                          icon={<Wallet size={18} />}
+                          detail={t(
+                            "оплаченные продажи − возвраты",
+                            "төленген сату − қайтару",
                           )}
-                        </Empty>
-                      )}
-                      <button
-                        className="panel-link"
-                        onClick={() => nav("insights")}
-                      >
-                        {t("Вся аналитика", "Барлық талдау")}
-                        <ArrowRight size={15} />
-                      </button>
-                    </section>
-                  </div>
-                  <div className="dashboard-bottom">
-                    <section className="panel">
-                      <div className="panel-heading">
-                        <h2>{t("Источники на связи", "Дереккөздер")}</h2>
-                        <button
-                          className="text-button"
-                          onClick={() => nav("connect")}
-                        >
-                          {t("Управлять", "Басқару")}
-                          <ArrowUpRight size={15} />
-                        </button>
-                      </div>
-                      <div className="source-mini-list">
-                        {data.sources
-                          .filter((s: any) => s.count)
-                          .slice(0, 4)
-                          .map((s: any) => (
-                            <div className="source-mini" key={s.name}>
-                              <span
-                                className="source-icon"
-                                style={{ color: s.color }}
-                              >
-                                {s.letter}
-                              </span>
-                              <div>
-                                <b>{s.title}</b>
-                                <small>
-                                  {s.count} {t("записей", "жазба")}
-                                </small>
-                              </div>
-                              <Badge
-                                color={s.mode === "Demo" ? "muted" : "green"}
-                              >
-                                {s.mode}
-                              </Badge>
-                            </div>
-                          ))}
-                        {!a.coverage.total && (
-                          <Empty>
-                            {t(
-                              "Подключите первый источник",
-                              "Бірінші дереккөзді қосыңыз",
-                            )}
-                          </Empty>
-                        )}
-                      </div>
-                    </section>
-                    <section className="panel target-panel">
-                      <div className="panel-heading">
-                        <h2>{t("Цель по выручке", "Түсім мақсаты")}</h2>
-                        <Target size={19} />
-                      </div>
-                      <div className="target-values">
-                        <strong>{money(a.revenue)}</strong>
-                        <span>/ {money(Number(data.org.revenue_target))}</span>
-                      </div>
-                      <div className="progress">
-                        <span
-                          style={{
-                            width:
-                              Math.min(
-                                100,
-                                Math.max(
-                                  0,
-                                  (a.revenue /
-                                    Number(data.org.revenue_target)) *
-                                    100,
-                                ),
-                              ) + "%",
-                          }}
+                          trend={
+                            a.priorRevenue > 0
+                              ? `${a.revenue >= a.priorRevenue ? "+" : ""}${Math.round((a.revenue / a.priorRevenue - 1) * 100)}%`
+                              : undefined
+                          }
+                        />
+                        <Stat
+                          label={t("Валовая прибыль", "Жалпы пайда")}
+                          value={a.gross === null ? "—" : money(a.gross)}
+                          icon={<TrendingUp size={18} />}
+                          detail={
+                            a.margin === null
+                              ? t(
+                                  "себестоимость неизвестна",
+                                  "өзіндік құн белгісіз",
+                                )
+                              : t(`Маржа ${a.margin}%`, `Маржа ${a.margin}%`)
+                          }
+                        />
+                        <Stat
+                          label={t("Расходы", "Шығындар")}
+                          value={money(a.expenses)}
+                          icon={<Receipt size={18} />}
+                          detail={t(
+                            "подтвержденные операции",
+                            "расталған операциялар",
+                          )}
+                        />
+                        <Stat
+                          label={t("Без ответа", "Жауапсыз")}
+                          value={String(a.unanswered).padStart(2, "0")}
+                          icon={<MessageSquare size={18} />}
+                          color="amber-text"
+                          detail={t(
+                            `из ${a.leads} обращений за период`,
+                            `кезеңдегі ${a.leads} өтініштен`,
+                          )}
                         />
                       </div>
-                      <div className="target-caption">
-                        <span>
-                          {Math.round(
-                            (a.revenue / Number(data.org.revenue_target)) * 100,
+                      <div className="dashboard-grid">
+                        <section className="panel chart-panel">
+                          <div className="panel-heading">
+                            <div>
+                              <h2>
+                                {t("Динамика бизнеса", "Бизнес динамикасы")}
+                              </h2>
+                              <p>
+                                {fmtDate(a.period.from)} —{" "}
+                                {fmtDate(a.period.to)} · KZT
+                              </p>
+                            </div>
+                            <div className="chart-legend">
+                              <span>
+                                <i /> {t("Выручка", "Түсім")}
+                              </span>
+                              <span>
+                                <i /> {t("Расходы", "Шығындар")}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="chart">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <AreaChart
+                                data={a.chart}
+                                margin={{
+                                  top: 20,
+                                  right: 8,
+                                  bottom: 0,
+                                  left: -15,
+                                }}
+                              >
+                                <defs>
+                                  <linearGradient
+                                    id="revenue"
+                                    x1="0"
+                                    y1="0"
+                                    x2="0"
+                                    y2="1"
+                                  >
+                                    <stop
+                                      offset="0%"
+                                      stopColor="#222222"
+                                      stopOpacity={0.24}
+                                    />
+                                    <stop
+                                      offset="100%"
+                                      stopColor="#222222"
+                                      stopOpacity={0}
+                                    />
+                                  </linearGradient>
+                                </defs>
+                                <CartesianGrid
+                                  stroke="#ececeb"
+                                  strokeDasharray="3 5"
+                                  vertical={false}
+                                />
+                                <XAxis
+                                  dataKey="date"
+                                  tickFormatter={(s) =>
+                                    fmtDate(s + "T12:00:00+05:00")
+                                  }
+                                  tick={{ fill: "#888880", fontSize: 11 }}
+                                  minTickGap={40}
+                                  axisLine={false}
+                                  tickLine={false}
+                                />
+                                <YAxis
+                                  tickFormatter={(v) => `${v / 1000}k`}
+                                  tick={{ fill: "#888880", fontSize: 11 }}
+                                  axisLine={false}
+                                  tickLine={false}
+                                />
+                                <Tooltip
+                                  contentStyle={{
+                                    background: "#ffffff",
+                                    border: "1px solid #ddddda",
+                                    borderRadius: 10,
+                                    color: "#222222",
+                                  }}
+                                  formatter={(v: any, n: any) => [
+                                    money(Number(v) * 100),
+                                    n === "revenue"
+                                      ? t("Выручка", "Түсім")
+                                      : t("Расходы", "Шығындар"),
+                                  ]}
+                                />
+                                <Area
+                                  isAnimationActive={false}
+                                  dataKey="revenue"
+                                  type="monotone"
+                                  stroke="#222222"
+                                  strokeWidth={2.5}
+                                  fill="url(#revenue)"
+                                />
+                                <Area
+                                  isAnimationActive={false}
+                                  dataKey="expenses"
+                                  type="monotone"
+                                  stroke="#aaaaa0"
+                                  strokeWidth={1.5}
+                                  strokeDasharray="4 5"
+                                  fill="transparent"
+                                />
+                              </AreaChart>
+                            </ResponsiveContainer>
+                          </div>
+                          <div className="chart-footer">
+                            <ShieldCheck size={14} />
+                            {t(
+                              "Только подтвержденные записи. Период и формулы доступны в аналитике.",
+                              "Тек расталған жазбалар. Кезең мен формулалар талдауда берілген.",
+                            )}
+                          </div>
+                        </section>
+                        <section className="panel focus-panel">
+                          <div className="panel-heading">
+                            <h2>{t("В фокусе", "Назарда")}</h2>
+                            <Badge color="muted">
+                              {t("ПРИОРИТЕТЫ", "БАСЫМДЫҚТАР")}
+                            </Badge>
+                          </div>
+                          {a.insights
+                            .slice(0, 3)
+                            .map((i: Insight, n: number) => (
+                              <button
+                                className="focus-item"
+                                key={i.id}
+                                onClick={() =>
+                                  open({ type: "evidence", insight: i })
+                                }
+                              >
+                                <span
+                                  className={
+                                    "signal-icon " +
+                                    (i.severity === "high" ? "amber" : "green")
+                                  }
+                                >
+                                  {n === 0 ? (
+                                    <MessageSquare size={17} />
+                                  ) : n === 1 ? (
+                                    <TrendingUp size={17} />
+                                  ) : (
+                                    <Activity size={17} />
+                                  )}
+                                </span>
+                                <div>
+                                  <h3>{insightTitle(i)}</h3>
+                                  <p>{insightFact(i)}</p>
+                                  <span>
+                                    {t(
+                                      "Открыть доказательства",
+                                      "Дәлелдерді ашу",
+                                    )}
+                                    <ArrowRight size={12} />
+                                  </span>
+                                </div>
+                              </button>
+                            ))}
+                          {!a.insights.length && (
+                            <Empty>
+                              {t(
+                                "Нет сигналов. Подключите источники и подтвердите записи.",
+                                "Белгілер жоқ. Дереккөздерді қосып, жазбаларды растаңыз.",
+                              )}
+                            </Empty>
                           )}
-                          % {t("от цели", "мақсаттан")}
-                        </span>
-                        <span>
-                          {days} {t("дней", "күн")}
-                        </span>
+                          <button
+                            className="panel-link"
+                            onClick={() => nav("insights")}
+                          >
+                            {t("Вся аналитика", "Барлық талдау")}
+                            <ArrowRight size={15} />
+                          </button>
+                        </section>
                       </div>
-                      <p>
-                        {t(
-                          "Цель сравнивается с выбранным периодом. Это факт, а не прогноз.",
-                          "Мақсат таңдалған кезеңмен салыстырылады. Бұл болжам емес, нақты дерек.",
-                        )}
-                      </p>
-                      <button
-                        className="text-button"
-                        onClick={() => nav("growth")}
-                      >
-                        {t("Перейти к плану роста", "Өсу жоспарына өту")}
-                        <ArrowRight size={15} />
-                      </button>
-                    </section>
-                  </div>
+                      <div className="dashboard-bottom">
+                        <section className="panel">
+                          <div className="panel-heading">
+                            <h2>{t("Источники на связи", "Дереккөздер")}</h2>
+                            <button
+                              className="text-button"
+                              onClick={() => nav("connect")}
+                            >
+                              {t("Управлять", "Басқару")}
+                              <ArrowUpRight size={15} />
+                            </button>
+                          </div>
+                          <div className="source-mini-list">
+                            {data.sources
+                              .filter((s: any) => s.count)
+                              .slice(0, 4)
+                              .map((s: any) => (
+                                <div className="source-mini" key={s.name}>
+                                  <span
+                                    className="source-icon"
+                                    style={{ color: s.color }}
+                                  >
+                                    {s.letter}
+                                  </span>
+                                  <div>
+                                    <b>{s.title}</b>
+                                    <small>
+                                      {s.count} {t("записей", "жазба")}
+                                    </small>
+                                  </div>
+                                  <Badge
+                                    color={
+                                      s.mode === "Demo" ? "muted" : "green"
+                                    }
+                                  >
+                                    {s.mode}
+                                  </Badge>
+                                </div>
+                              ))}
+                            {!a.coverage.total && (
+                              <Empty>
+                                {t(
+                                  "Подключите первый источник",
+                                  "Бірінші дереккөзді қосыңыз",
+                                )}
+                              </Empty>
+                            )}
+                          </div>
+                        </section>
+                        <section className="panel target-panel">
+                          <div className="panel-heading">
+                            <h2>{t("Цель по выручке", "Түсім мақсаты")}</h2>
+                            <Target size={19} />
+                          </div>
+                          <div className="target-values">
+                            <strong>{money(a.revenue)}</strong>
+                            <span>
+                              / {money(Number(data.org.revenue_target))}
+                            </span>
+                          </div>
+                          <div className="progress">
+                            <span
+                              style={{
+                                width:
+                                  Math.min(
+                                    100,
+                                    Math.max(
+                                      0,
+                                      (a.revenue /
+                                        Number(data.org.revenue_target)) *
+                                        100,
+                                    ),
+                                  ) + "%",
+                              }}
+                            />
+                          </div>
+                          <div className="target-caption">
+                            <span>
+                              {Math.round(
+                                (a.revenue / Number(data.org.revenue_target)) *
+                                  100,
+                              )}
+                              % {t("от цели", "мақсаттан")}
+                            </span>
+                            <span>
+                              {days} {t("дней", "күн")}
+                            </span>
+                          </div>
+                          <p>
+                            {t(
+                              "Цель сравнивается с выбранным периодом. Это факт, а не прогноз.",
+                              "Мақсат таңдалған кезеңмен салыстырылады. Бұл болжам емес, нақты дерек.",
+                            )}
+                          </p>
+                          <button
+                            className="text-button"
+                            onClick={() => nav("growth")}
+                          >
+                            {t("Перейти к плану роста", "Өсу жоспарына өту")}
+                            <ArrowRight size={15} />
+                          </button>
+                        </section>
+                      </div>
+                    </details>
+                  )}
                 </>
               )}
               {section === "connect" && (
@@ -1040,14 +1045,14 @@ export default function Bagyt() {
                       </span>
                       <h2>
                         {t(
-                          "Ваш бизнес уже здесь. Давайте подключимся.",
-                          "Бизнесіңіз осында. Дереккөздерді қосайық.",
+                          "Один отчёт — и начнём разбираться.",
+                          "Бір есептен бастайық.",
                         )}
                       </h2>
                       <p>
                         {t(
-                          "Начните с удобного сервиса. Остальное — когда понадобится.",
-                          "Ыңғайлы сервистен бастаңыз. Қалғанын қажет болғанда қосасыз.",
+                          "Загрузите данные, проверьте записи — AQYL автоматически обновит разбор.",
+                          "Деректерді жүктеп, жазбаларды тексеріңіз — AQYL талдауды автоматты жаңартады.",
                         )}
                       </p>
                       <div className="setup-steps">
@@ -1076,13 +1081,48 @@ export default function Bagyt() {
                       }
                     />
                   </section>
+                  {owner && (
+                    <div className="data-entry-options">
+                      <button
+                        onClick={() =>
+                          open({ type: "import", source: "POS", kind: "sale" })
+                        }
+                      >
+                        <Upload size={25} />
+                        <b>{t("Загрузить таблицу", "Кестені жүктеу")}</b>
+                        <span>
+                          {t(
+                            "Excel или CSV из кассы и других сервисов",
+                            "Касса мен басқа сервистерден Excel немесе CSV",
+                          )}
+                        </span>
+                        <ArrowRight size={18} />
+                      </button>
+                      <button onClick={() => open({ type: "manual" })}>
+                        <Receipt size={25} />
+                        <b>
+                          {t(
+                            "Добавить запись или чек",
+                            "Жазба немесе чек қосу",
+                          )}
+                        </b>
+                        <span>
+                          {t(
+                            "Продажа, расход или фото документа",
+                            "Сату, шығын немесе құжат фотосы",
+                          )}
+                        </span>
+                        <ArrowRight size={18} />
+                      </button>
+                    </div>
+                  )}
                   <div className="section-intro">
                     <div>
                       <ShieldCheck size={21} />
                       <span>
                         {t(
-                          "Выберите сервис → укажите контакт → разрешите демо-подключение.",
-                          "Сервисті таңдаңыз → байланысты енгізіңіз → демо-қосылымға рұқсат беріңіз.",
+                          "Сначала проверьте записи. Только подтверждённые данные участвуют в анализе.",
+                          "Алдымен жазбаларды тексеріңіз. Талдауға тек расталған деректер қатысады.",
                         )}
                       </span>
                     </div>
@@ -1099,99 +1139,116 @@ export default function Bagyt() {
                       <ArrowRight size={15} />
                     </button>
                   </div>
-                  <div className="sources-grid">
-                    {data.sources.map((s: any) => (
-                      <article className="panel source-card" key={s.name}>
-                        <div className="source-card-top">
-                          <span
-                            className="source-icon large"
-                            style={{ color: s.color }}
-                          >
-                            {s.letter}
-                          </span>
-                          <Badge
-                            color={
-                              s.mode === "Disconnected"
-                                ? "muted"
+                  <details className="source-options">
+                    <summary>
+                      {t("Сервисы и подключения", "Сервистер мен қосылымдар")}
+                      <span>
+                        {t(
+                          "UMAG, WhatsApp, Instagram, TikTok, 2GIS, сайт",
+                          "UMAG, WhatsApp, Instagram, TikTok, 2GIS, сайт",
+                        )}
+                      </span>
+                    </summary>
+                    <p className="source-explainer">
+                      {t(
+                        "Файлы и заказы сайта дают реальные данные. Подключения по номеру или ссылке показывают демо-сценарий; для автоматического доступа нужны официальные API сервисов.",
+                        "Файлдар мен сайт тапсырыстары нақты деректер береді. Нөмір немесе сілтеме арқылы қосылу — демо-сценарий; автоматты қолжетімділік үшін сервистердің ресми API-лері қажет.",
+                      )}
+                    </p>
+                    <div className="sources-grid">
+                      {data.sources.map((s: any) => (
+                        <article className="panel source-card" key={s.name}>
+                          <div className="source-card-top">
+                            <span
+                              className="source-icon large"
+                              style={{ color: s.color }}
+                            >
+                              {s.letter}
+                            </span>
+                            <Badge
+                              color={
+                                s.mode === "Disconnected"
+                                  ? "muted"
+                                  : s.mode === "Demo"
+                                    ? "amber"
+                                    : "green"
+                              }
+                            >
+                              {s.mode === "Disconnected"
+                                ? t("Не подключено", "Қосылмаған")
                                 : s.mode === "Demo"
-                                  ? "amber"
-                                  : "green"
-                            }
-                          >
-                            {s.mode === "Disconnected"
-                              ? t("Не подключено", "Қосылмаған")
-                              : s.mode === "Demo"
-                                ? t("Демо", "Демо")
-                                : s.mode === "File Import"
-                                  ? t("Файл", "Файл")
-                                  : s.mode === "Manual"
-                                    ? t("Вручную", "Қолмен")
-                                    : s.mode}
-                          </Badge>
-                        </div>
-                        <h3>{s.title}</h3>
-                        <p>{s.description}</p>
-                        <div className="source-meta">
-                          <span>
-                            {s.count} {t("записей", "жазба")}
-                          </span>
-                          <span>
-                            {s.last
-                              ? fmtDate(s.last)
-                              : t("Нет обновлений", "Жаңарту жоқ")}
-                          </span>
-                        </div>
-                        {s.connection && (
-                          <p className="connection-identity">
-                            <CheckCircle2 size={13} />
-                            {s.connection.identifier}
-                          </p>
-                        )}
-                        {owner && s.name !== "Расходы" && (
-                          <button
-                            className="primary full"
-                            onClick={() =>
-                              open({ type: "connector", source: s })
-                            }
-                          >
-                            <Plug size={15} />
-                            {s.connection
-                              ? t(
-                                  "Демо подключено · управлять",
-                                  "Демо қосылды · басқару",
-                                )
-                              : t("Подключить демо", "Демоны қосу")}
-                          </button>
-                        )}
-                        {owner && (
-                          <button
-                            className="secondary full"
-                            onClick={() =>
-                              s.name === "Сайт"
-                                ? action(async () => {
-                                    setWebhook(await api("webhook/settings"));
-                                    open({ type: "webhook" });
-                                  })
-                                : open({
-                                    type: "import",
-                                    source: s.name,
-                                    kind: s.kind,
-                                  })
-                            }
-                          >
-                            {s.name === "Сайт"
-                              ? t("Настроить Webhook", "Webhook баптау")
-                              : t("Импортировать файл", "Файл импорттау")}
-                            {s.name === "Сайт" ? (
+                                  ? t("Демо", "Демо")
+                                  : s.mode === "File Import"
+                                    ? t("Файл", "Файл")
+                                    : s.mode === "Manual"
+                                      ? t("Вручную", "Қолмен")
+                                      : s.mode}
+                            </Badge>
+                          </div>
+                          <h3>{s.title}</h3>
+                          <p>{s.description}</p>
+                          <div className="source-meta">
+                            <span>
+                              {s.count} {t("записей", "жазба")}
+                            </span>
+                            <span>
+                              {s.last
+                                ? fmtDate(s.last)
+                                : t("Нет обновлений", "Жаңарту жоқ")}
+                            </span>
+                          </div>
+                          {s.connection && (
+                            <p className="connection-identity">
+                              <CheckCircle2 size={13} />
+                              {s.connection.identifier}
+                            </p>
+                          )}
+                          {owner && s.name !== "Расходы" && (
+                            <button
+                              className="primary full"
+                              onClick={() =>
+                                open({ type: "connector", source: s })
+                              }
+                            >
                               <Plug size={15} />
-                            ) : (
-                              <Upload size={15} />
-                            )}
-                          </button>
-                        )}
-                      </article>
-                    ))}
-                  </div>
+                              {s.connection
+                                ? t(
+                                    "Демо подключено · управлять",
+                                    "Демо қосылды · басқару",
+                                  )
+                                : t("Подключить демо", "Демоны қосу")}
+                            </button>
+                          )}
+                          {owner && (
+                            <button
+                              className="secondary full"
+                              onClick={() =>
+                                s.name === "Сайт"
+                                  ? action(async () => {
+                                      setWebhook(await api("webhook/settings"));
+                                      open({ type: "webhook" });
+                                    })
+                                  : open({
+                                      type: "import",
+                                      source: s.name,
+                                      kind: s.kind,
+                                    })
+                              }
+                            >
+                              {s.name === "Сайт"
+                                ? t("Настроить Webhook", "Webhook баптау")
+                                : t("Импортировать файл", "Файл импорттау")}
+                              {s.name === "Сайт" ? (
+                                <Plug size={15} />
+                              ) : (
+                                <Upload size={15} />
+                              )}
+                            </button>
+                          )}
+                        </article>
+                      ))}
+                    </div>
+                  </details>
                   <section className="panel records-panel" id="records">
                     <div className="panel-heading">
                       <div>
@@ -1549,7 +1606,7 @@ export default function Bagyt() {
                       <div className="panel-heading">
                         <div>
                           <h2>
-                            {t("План роста", "Өсу жоспары")} · {p.days}{" "}
+                            {t("Мои дела", "Өсу жоспары")} · {p.days}{" "}
                             {t("дней", "күн")}
                           </h2>
                           <p>
@@ -2133,7 +2190,7 @@ export default function Bagyt() {
                   : modal.type === "demo"
                     ? t("Выберите демо-бизнес", "Демо-бизнесті таңдаңыз")
                     : modal.type === "import"
-                      ? `${t("Импорт", "Импорт")} · ${modal.source}`
+                      ? t("Добавить отчёт", "Есеп қосу")
                       : modal.type === "manual"
                         ? t("Добавить операцию", "Операция қосу")
                         : modal.type === "chat"
@@ -2976,39 +3033,20 @@ export default function Bagyt() {
                   <Badge color={data.ai.enabled ? "green" : "muted"}>
                     {data.ai.enabled
                       ? "LLM"
-                      : t("Режим правил", "Ережелер режимі")}
+                      : t("По вашим данным", "Деректеріңіз бойынша")}
                   </Badge>
                 </div>
               </div>
               {!data.ai.enabled ? (
-                <>
-                  <p className="muted">
-                    {t(
-                      "Свободный диалог пока не подключен. Ниже — вычисленные сигналы по вашим записям, а не сгенерированные AI-ответы.",
-                      "Еркін диалог қосылмаған. Төменде AI жауабы емес, жазбаларыңыз бойынша есептелген белгілер.",
-                    )}
-                  </p>
-                  {a.insights.map((i: Insight) => (
-                    <button
-                      className="chat-signal"
-                      key={i.id}
-                      onClick={() => open({ type: "evidence", insight: i })}
-                    >
-                      <Lightbulb size={18} />
-                      <div>
-                        <b>{insightTitle(i)}</b>
-                        <p>{insightFact(i)}</p>
-                      </div>
-                      <ArrowUpRight size={16} />
-                    </button>
-                  ))}
-                  <div className="hint">
-                    {t(
-                      "Свободный диалог пока не подключен. Выберите сигнал выше, чтобы увидеть факты и рекомендации, или откройте «План роста».",
-                      "Еркін диалог әзірше қосылмаған. Фактілер мен ұсыныстарды көру үшін жоғарыдағы белгіні таңдаңыз немесе «Өсу жоспарын» ашыңыз.",
-                    )}
-                  </div>
-                </>
+                <GuidedAssistant
+                  analytics={a}
+                  language={language}
+                  onNavigate={(key) => {
+                    close();
+                    nav(key);
+                  }}
+                  onEvidence={(insight) => open({ type: "evidence", insight })}
+                />
               ) : (
                 <>
                   <p className="muted">

@@ -8,6 +8,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { api, Badge } from "./ui";
+import { sourceCatalog } from "@/lib/adapters";
 type T = (ru: string, kk: string) => string;
 const fields = [
   "external_id",
@@ -27,10 +28,18 @@ const fields = [
   "views",
 ];
 const aliases: Record<string, string[]> = {
-  external_id: ["id", "order_id", "номер", "номер заказа", "номер чека"],
-  date: ["дата", "дата продажи", "datetime"],
-  amount: ["сумма", "итого", "выручка", "total"],
-  cost: ["себестоимость", "затраты"],
+  external_id: [
+    "id",
+    "order_id",
+    "номер",
+    "номер заказа",
+    "номер чека",
+    "нөмір",
+    "чек нөмірі",
+  ],
+  date: ["дата", "дата продажи", "datetime", "күн", "күні"],
+  amount: ["сумма", "итого", "выручка", "total", "сома", "барлығы"],
+  cost: ["себестоимость", "затраты", "өзіндік құн"],
   status: ["статус"],
   name: ["название", "товар", "категория"],
   text: ["текст", "отзыв"],
@@ -97,6 +106,8 @@ export default function Importer({
     [errors, setErrors] = useState<any[]>([]),
     [consent, setConsent] = useState(false),
     [selectedKind, setKind] = useState(kind),
+    [selectedSource, setSource] = useState(source),
+    [showExtra, setShowExtra] = useState(false),
     [result, setResult] = useState<any>(null);
   async function upload(f: File) {
     setBusy(true);
@@ -145,7 +156,11 @@ export default function Importer({
     setErrors([]);
     try {
       setResult(
-        await api("imports", { source, filename: file.filename, rows }),
+        await api("imports", {
+          source: selectedSource,
+          filename: file.filename,
+          rows,
+        }),
       );
     } catch (e) {
       setError((e as Error).message);
@@ -167,6 +182,27 @@ export default function Importer({
           3 · {t("Проверка", "Тексеру")}
         </Badge>
       </div>
+      {!rows && !result && (
+        <label>
+          {t("Откуда ваш отчёт?", "Есебіңіз қайдан?")}
+          <select
+            value={selectedSource}
+            onChange={(e) => {
+              setSource(e.target.value);
+              setKind(
+                sourceCatalog.find((x) => x.name === e.target.value)?.kind ||
+                  "sale",
+              );
+            }}
+          >
+            {sourceCatalog.map((x) => (
+              <option value={x.name} key={x.name}>
+                {x.title}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       {error && (
         <div className="form-error" role="alert">
           {error}
@@ -231,7 +267,7 @@ export default function Importer({
                 <div>
                   <b>{file.filename}</b>
                   <small>
-                    {file.rows.length} {t("строк", "жол")} · {source}
+                    {file.rows.length} {t("строк", "жол")} · {selectedSource}
                   </small>
                 </div>
                 <button
@@ -253,7 +289,30 @@ export default function Importer({
                       onChange={(e) => setKind(e.target.value)}
                     >
                       {Object.keys(defaults).map((k) => (
-                        <option key={k}>{k}</option>
+                        <option key={k} value={k}>
+                          {t(
+                            (
+                              {
+                                sale: "Продажи",
+                                refund: "Возвраты",
+                                expense: "Расходы",
+                                lead: "Обращения",
+                                campaign: "Кампании",
+                                review: "Отзывы",
+                              } as Record<string, string>
+                            )[k],
+                            (
+                              {
+                                sale: "Сату",
+                                refund: "Қайтару",
+                                expense: "Шығындар",
+                                lead: "Өтініштер",
+                                campaign: "Науқандар",
+                                review: "Пікірлер",
+                              } as Record<string, string>
+                            )[k],
+                          )}
+                        </option>
                       ))}
                     </select>
                   </label>
@@ -264,23 +323,52 @@ export default function Importer({
                     )}
                   </p>
                   <div className="mapping-grid">
-                    {fields.map((key) => (
-                      <label key={key}>
-                        {t(labels[key], kkLabels[key])}
-                        <select
-                          value={mapping[key] || ""}
-                          onChange={(e) =>
-                            setMapping({ ...mapping, [key]: e.target.value })
-                          }
-                        >
-                          <option value="">—</option>
-                          {file.headers.map((h: string) => (
-                            <option key={h}>{h}</option>
-                          ))}
-                        </select>
-                      </label>
-                    ))}
+                    {fields
+                      .filter(
+                        (key) =>
+                          showExtra ||
+                          mapping[key] ||
+                          [
+                            "external_id",
+                            "date",
+                            "amount",
+                            "cost",
+                            "status",
+                            "name",
+                          ].includes(key),
+                      )
+                      .map((key) => (
+                        <label key={key}>
+                          {t(labels[key], kkLabels[key])}
+                          <select
+                            value={mapping[key] || ""}
+                            onChange={(e) =>
+                              setMapping({ ...mapping, [key]: e.target.value })
+                            }
+                          >
+                            <option value="">—</option>
+                            {file.headers.map((h: string) => (
+                              <option key={h}>{h}</option>
+                            ))}
+                          </select>
+                        </label>
+                      ))}
                   </div>
+                  <button
+                    className="text-button"
+                    aria-expanded={showExtra}
+                    onClick={() => setShowExtra(!showExtra)}
+                  >
+                    {showExtra
+                      ? t(
+                          "Скрыть дополнительные поля",
+                          "Қосымша өрістерді жасыру",
+                        )
+                      : t(
+                          "Дополнительные поля: отзывы, обращения, реклама",
+                          "Қосымша өрістер: пікірлер, өтініштер, жарнама",
+                        )}
+                  </button>
                   <button
                     className="primary"
                     disabled={!mapping.external_id || !mapping.date}
@@ -397,10 +485,22 @@ export default function Importer({
               )}
             </>
           )}
+          {!file && (
+            <a
+              className="template-download"
+              href="/report-template.csv"
+              download
+            >
+              {t(
+                "Нет отчёта? Скачать пустой шаблон",
+                "Есеп жоқ па? Бос үлгіні жүктеу",
+              )}
+            </a>
+          )}
           <div className="hint">
             {t(
-              "Шаблоны для теста находятся в папке fixtures проекта. Официальный API источника не подключается при загрузке файла.",
-              "Тест үлгілері жобаның fixtures қалтасында. Файл жүктеу дереккөздің ресми API-ін қоспайды.",
+              "AQYL узнаёт названия колонок автоматически. Проверьте соответствия и суммы перед сохранением.",
+              "AQYL баған атауларын автоматты таниды. Сақтау алдында сәйкестіктер мен сомаларды тексеріңіз.",
             )}
           </div>
         </>

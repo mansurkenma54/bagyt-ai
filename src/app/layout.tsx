@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./pixel-theme.css";
+import "./warm-theme.css";
 export const metadata: Metadata = {
   icons: { icon: "/brand-mark.svg", apple: "/brand-mark.svg" },
-  title: "BAGYT AI — От данных к росту",
+  title: "BAGYT AI — AQYL рядом с вашим делом",
   description:
     "AQYL: проверенные данные, понятные решения и измеримый рост бизнеса.",
 };

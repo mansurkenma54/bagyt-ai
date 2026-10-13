@@ -11,7 +11,7 @@ export function Logo() {
         <b>
           BAGYT<span> AI</span>
         </b>
-        <small>БИЗНЕС БАҒЫТЫ</small>
+        <small>ӨЗ ІСІҢЕ СЕН</small>
       </span>
     </div>
   );
@@ -55,7 +55,7 @@ export function Robot({
   return (
     <button
       type="button"
-      className={`robot pixel-robot mood-${emotion}`}
+      className={`robot soul-robot mood-${emotion}`}
       style={{ width: size, height: size }}
       aria-label={`AQYL: ${names[emotion]}. Нажмите, чтобы сменить настроение / Көңіл күйін өзгерту`}
       onPointerEnter={() => setHover(true)}
@@ -68,75 +68,71 @@ export function Robot({
       }}
     >
       <svg
-        viewBox="0 0 96 96"
+        viewBox="0 0 120 120"
         fill="none"
-        shapeRendering="crispEdges"
         aria-hidden="true"
+        shapeRendering="crispEdges"
       >
         <ellipse
-          className="pixel-shadow"
-          cx="48"
-          cy="84"
-          rx="29"
-          ry="3"
-          fill="#04bf7530"
+          className="aqyl-ground"
+          cx="61"
+          cy="108"
+          rx="31"
+          ry="4"
+          fill="#163b3020"
         />
-        <g className="pixel-body">
-          <path d="M46 27V15h4v12h-4Z" fill="#13e68c" />
-          <path d="M42 7h12v12H42z" fill="#16e991" />
-          <path d="M46 11h4v4h-4z" fill="#d2ffe9" />
+        <g className="aqyl-soul">
+          {/* A little direction-star: four soft stepped points and a heart pocket. */}
           <path
-            d="M26 23h4v4h8v7h-4v-3h-8v-8Zm40 0h4v8h-8v3h-4v-7h8v-4Z"
-            fill="#00b570"
-          />
-          <path d="M18 15h12v12H18zM66 15h12v12H66z" fill="#16e991" />
-          <path d="M22 19h4v4h-4zM70 19h4v4h-4z" fill="#c1ffdf" />
-          <path
-            d="M22 31h52v4h8v8h4v28h-4v8H14v-8h-4V43h4v-8h8v-4Z"
-            fill="#009a5f"
-          />
-          <path d="M22 31h52v4h8v8H14v-8h8v-4Z" fill="#78ffbb" />
-          <path d="M18 39h60v4h4v24h-4v8H18v-8h-4V43h4v-4Z" fill="#10de87" />
-          <path d="M22 43h52v4h4v20h-4v4H22v-4h-4V47h4v-4Z" fill="#031d13" />
-          <path d="M4 47h6v20H4zM86 47h6v20h-6z" fill="#20ef98" />
-          <path d="M18 75h60v4H18zM26 79h44v3H26z" fill="#007c4b" />
-          <g className="pixel-eyes eye-normal" fill="#1ef7a1">
-            <path d="M29 51h8v8h-8zM59 51h8v8h-8z" />
-          </g>
-          <g className="pixel-eyes eye-happy" fill="#26ffa6">
-            <path d="M27 55v-4h4v-4h8v4h4v4h-4v-4h-8v4h-4ZM55 55v-4h4v-4h8v4h4v4h-4v-4h-8v4h-4Z" />
-          </g>
-          <g className="pixel-eyes eye-curious" fill="#26ffa6">
-            <path d="M27 53h12v4H27zM59 47h8v12h-8zM27 45h12v3H27z" />
-          </g>
-          <g className="pixel-eyes eye-sleepy" fill="#15de8b">
-            <path d="M27 55h14v3H27zM55 55h14v3H55z" />
-          </g>
-          <g className="pixel-eyes eye-thinking" fill="#26ffa6">
-            <path d="M31 51h8v8h-8zM61 51h8v8h-8z" />
-          </g>
-          <path
-            className="pixel-mouth"
-            d="M41 63h4v3h6v-3h4v3h-4v3h-6v-3h-4v-3Z"
-            fill="#13e68c"
+            d="M50 14h20v10h10v13h13v10h13v24H94v11H81v16H69v8H50V95H38V82H25V70H13V48h13V37h13V24h11Z"
+            fill="#123e35"
           />
           <path
-            className="pixel-cheeks"
-            d="M24 61h8v3h-8zM64 61h8v3h-8z"
-            fill="#09a364"
+            d="M51 18h17v11h10v14h14v9h10v16H90v11H77v16H66v7H53V91H41V78H28V67H17V51h13V41h13V29h8Z"
+            fill="#88d9ae"
           />
+          <path d="M51 18h17v11h10v10H45V29h6Z" fill="#c5f3d5" />
+          <path d="M30 45h58v28H30Z" fill="#c5f3d5" />
+          <g className="soul-eyes soul-normal" fill="#163b30">
+            <path d="M40 49h6v10h-6zM72 49h6v10h-6z" />
+            <path d="M42 49h2v3h-2zM74 49h2v3h-2z" fill="white" />
+          </g>
+          <g className="soul-eyes soul-happy" stroke="#163b30" strokeWidth="4">
+            <path d="M37 56v-5h11v5M69 56v-5h11v5" />
+          </g>
+          <g className="soul-eyes soul-curious" fill="#163b30">
+            <path d="M39 50h9v4h-9zM72 47h6v12h-6zM39 44h9v3h-9z" />
+          </g>
+          <g className="soul-eyes soul-sleepy" stroke="#163b30" strokeWidth="3">
+            <path d="M38 55h12m18 0h12" />
+          </g>
+          <g className="soul-eyes soul-thinking" fill="#163b30">
+            <path d="M43 47h6v9h-6zM75 47h6v9h-6z" />
+          </g>
+          <path
+            className="soul-smile"
+            d="M52 60v4h12v-4"
+            stroke="#163b30"
+            strokeWidth="3"
+          />
+          <path d="M33 60h8v4h-8zM78 60h8v4h-8z" fill="#e59f85" />
+          <path
+            d="M48 74h8v4h5v-4h8v4h4v8h-4v4h-4v4h-4v4h-5v-4h-4v-4h-4v-4h-4v-8h3Z"
+            fill="#f17f6a"
+          />
+          <path d="M49 77h6v4h-6z" fill="#ffd1b7" />
+          <path className="soul-hand" d="M88 72h9v-9h7v16H88Z" fill="#123e35" />
         </g>
-        <g className="thought-pixels" fill="#08d980">
-          <rect x="71" y="4" width="4" height="4" />
-          <rect x="79" y="4" width="4" height="4" />
-          <rect x="87" y="4" width="4" height="4" />
+        <g className="soul-thought" fill="#527365">
+          <rect x="85" y="18" width="4" height="4" />
+          <rect x="95" y="13" width="5" height="5" />
+          <rect x="106" y="8" width="6" height="6" />
         </g>
-        <g className="sleep-pixels" fill="#00b975">
-          <path d="M79 25h9v3h-3v3h-3v3h6v3h-9v-3h3v-3h3v-3h-6z" />
-        </g>
-        <g className="happy-spark" fill="#0bdd87">
-          <path d="M4 30h4v-4h4v4h4v4h-4v4H8v-4H4z" />
-        </g>
+        <path
+          className="soul-spark"
+          d="M17 17h4v6h6v4h-6v6h-4v-6h-6v-4h6z"
+          fill="#e89965"
+        />
       </svg>
     </button>
   );
