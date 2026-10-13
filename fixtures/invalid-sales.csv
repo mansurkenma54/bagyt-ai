@@ -1,0 +1,2 @@
+external_id,date,amount,status
+BAD-001,not-a-date,-5,paid

@@ -1,0 +1,2 @@
+external_id,date,amount,cost,status,order_id,payment_id
+WEB-IMPORT-001,2026-10-12,32500.50,25000,paid,ORDER-IMPORT-001,PAY-IMPORT-001

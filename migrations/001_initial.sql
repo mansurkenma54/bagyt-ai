@@ -1,0 +1,25 @@
+CREATE TABLE IF NOT EXISTS users (id text PRIMARY KEY, email text UNIQUE NOT NULL, name text NOT NULL, password_hash text NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS organizations (id text PRIMARY KEY, name text NOT NULL, industry text NOT NULL, city text NOT NULL, employees int NOT NULL DEFAULT 1, branches int NOT NULL DEFAULT 1, goal text NOT NULL DEFAULT '', channels jsonb NOT NULL DEFAULT '[]', demo boolean NOT NULL DEFAULT false, revenue_target bigint NOT NULL DEFAULT 500000000, webhook_secret text NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS memberships (org_id text REFERENCES organizations(id), user_id text REFERENCES users(id), role text NOT NULL CHECK(role IN ('owner','manager','viewer')), PRIMARY KEY(org_id,user_id));
+CREATE TABLE IF NOT EXISTS sessions (token_hash text PRIMARY KEY, user_id text REFERENCES users(id), org_id text REFERENCES organizations(id), expires_at timestamptz NOT NULL);
+CREATE TABLE IF NOT EXISTS events (id text PRIMARY KEY, org_id text NOT NULL REFERENCES organizations(id), source text NOT NULL, external_id text NOT NULL, kind text NOT NULL CHECK(kind IN ('sale','refund','expense','lead','campaign','review')), occurred_at timestamptz NOT NULL, amount bigint NOT NULL DEFAULT 0 CHECK(amount>=0), cost bigint CHECK(cost>=0), status text NOT NULL, verified boolean NOT NULL DEFAULT false, fingerprint text NOT NULL, duplicate_of text, batch_id text, payload jsonb NOT NULL DEFAULT '{}', created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(org_id,source,external_id));
+CREATE INDEX IF NOT EXISTS events_org_date ON events(org_id,occurred_at);
+CREATE TABLE IF NOT EXISTS raw_events (id text PRIMARY KEY, org_id text NOT NULL REFERENCES organizations(id), source text NOT NULL, event_id text NOT NULL, payload jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS import_batches (id text PRIMARY KEY, org_id text NOT NULL REFERENCES organizations(id), source text NOT NULL, filename text NOT NULL, imported int NOT NULL DEFAULT 0, skipped int NOT NULL DEFAULT 0, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS plans (id text PRIMARY KEY, org_id text NOT NULL REFERENCES organizations(id), title text NOT NULL, days int NOT NULL CHECK(days IN (7,30)), status text NOT NULL DEFAULT 'draft', baseline jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), approved_at timestamptz);
+CREATE TABLE IF NOT EXISTS tasks (id text PRIMARY KEY, org_id text NOT NULL REFERENCES organizations(id), plan_id text REFERENCES plans(id), title text NOT NULL, description text NOT NULL, assignee text NOT NULL REFERENCES users(id), due_at timestamptz NOT NULL, status text NOT NULL DEFAULT 'draft', metric text NOT NULL, baseline numeric NOT NULL, target numeric NOT NULL, evidence jsonb NOT NULL, resources text NOT NULL DEFAULT '', measurement text NOT NULL, completed_at timestamptz, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS outcome_checks (id text PRIMARY KEY, org_id text NOT NULL REFERENCES organizations(id), task_id text NOT NULL REFERENCES tasks(id), baseline numeric NOT NULL, actual numeric, target numeric NOT NULL, verdict text NOT NULL, evidence jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS audit_logs (id text PRIMARY KEY, org_id text NOT NULL REFERENCES organizations(id), user_id text NOT NULL, action text NOT NULL, entity_id text, detail jsonb NOT NULL DEFAULT '{}', created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS webhook_receipts (id text PRIMARY KEY, org_id text NOT NULL REFERENCES organizations(id), event_id text NOT NULL, received_at timestamptz NOT NULL DEFAULT now(), UNIQUE(org_id,event_id));
+CREATE TABLE IF NOT EXISTS rate_limits (key text PRIMARY KEY, attempts int NOT NULL DEFAULT 1, expires_at timestamptz NOT NULL);
+DO $$ BEGIN IF NOT EXISTS(SELECT FROM pg_roles WHERE rolname='bagyt_tenant') THEN CREATE ROLE bagyt_tenant NOLOGIN; END IF; END $$;
+GRANT USAGE ON SCHEMA public TO bagyt_tenant;
+GRANT SELECT,INSERT,UPDATE,DELETE ON organizations,events,raw_events,import_batches,plans,tasks,outcome_checks,audit_logs,webhook_receipts TO bagyt_tenant;
+ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS organization_isolation ON organizations;
+CREATE POLICY organization_isolation ON organizations TO bagyt_tenant USING(id=current_setting('bagyt.org_id',true)) WITH CHECK(id=current_setting('bagyt.org_id',true));
+DO $$ DECLARE t text; BEGIN FOREACH t IN ARRAY ARRAY['events','raw_events','import_batches','plans','tasks','outcome_checks','audit_logs','webhook_receipts'] LOOP
+EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY',t);
+EXECUTE format('DROP POLICY IF EXISTS tenant_isolation ON %I',t);
+EXECUTE format('CREATE POLICY tenant_isolation ON %I TO bagyt_tenant USING(org_id=current_setting(''bagyt.org_id'',true)) WITH CHECK(org_id=current_setting(''bagyt.org_id'',true))',t);
+END LOOP; END $$;

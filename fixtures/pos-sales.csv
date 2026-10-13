@@ -1,0 +1,4 @@
+﻿external_id,date,amount,cost,status,order_id,payment_id,channel
+IMPORT-001,2026-10-12,32500.50,25000.00,paid,ORDER-IMPORT-001,PAY-IMPORT-001,Магазин
+IMPORT-002,2026-10-12,18500,12000,pending,ORDER-IMPORT-002,,Сайт
+IMPORT-003,2026-10-12,57000,41000,paid,ORDER-IMPORT-003,PAY-IMPORT-003,Магазин
