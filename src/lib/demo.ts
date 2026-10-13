@@ -2,7 +2,13 @@ import { randomBytes, createHash } from "node:crypto";
 import { db, uid, type Tx } from "./db";
 import { hashPassword } from "./auth";
 import { parseRow } from "./events";
-export async function createDemo(industry: "retail" | "education") {
+import { analyze } from "./analytics";
+import { localizeAnalytics } from "./i18n";
+import { demoAmount } from "./demo-preview";
+export async function createDemo(
+  industry: "retail" | "education",
+  language: "ru" | "kk" = "ru",
+) {
   const pg = await db(),
     userId = uid(),
     orgId = uid(),
@@ -81,7 +87,7 @@ export async function createDemo(industry: "retail" | "education") {
       );
     }
     await tx.query(
-      "INSERT INTO organizations(id,name,industry,city,employees,demo,revenue_target,webhook_secret) VALUES($1,$2,$3,$4,3,true,$5,$6)",
+      "INSERT INTO organizations(id,name,industry,city,employees,demo,revenue_target,webhook_secret,goal) VALUES($1,$2,$3,$4,3,true,$5,$6,$7)",
       [
         orgId,
         industry === "retail" ? "Dala Store" : "Bilim Academy",
@@ -89,6 +95,9 @@ export async function createDemo(industry: "retail" | "education") {
         "Тараз",
         industry === "retail" ? 450000000 : 650000000,
         randomBytes(32).toString("hex"),
+        industry === "retail"
+          ? "Сохранить прибыль и не терять клиентов"
+          : "Превращать заявки в оплаченные занятия",
       ],
     );
     for (const [id, role] of [
@@ -100,18 +109,14 @@ export async function createDemo(industry: "retail" | "education") {
         "INSERT INTO memberships(org_id,user_id,role) VALUES($1,$2,$3)",
         [orgId, id, role],
       );
-    const date = (days: number, hours = 12) => {
-      const d = new Date();
-      d.setUTCDate(d.getUTCDate() - days);
-      d.setUTCHours(hours, 0, 0, 0);
-      if (d > new Date()) d.setUTCDate(d.getUTCDate() - 1);
-      return d.toISOString();
-    };
+    const demoNow = new Date();
+    // Relative timestamps keep the 30-day example stable at every time of day.
+    const date = (days: number, hours = 12) =>
+      new Date(
+        demoNow.getTime() - (days * 24 + 1 + 12 - hours) * 3600000,
+      ).toISOString();
     for (let i = 0; i < 60; i++) {
-      const amount =
-        industry === "retail"
-          ? 45000 + ((i * 7171) % 55000)
-          : 65000 + ((i * 3111) % 85000);
+      const amount = demoAmount(industry, i);
       await insertEvent(
         tx,
         orgId,
@@ -221,8 +226,8 @@ export async function createDemo(industry: "retail" | "education") {
         payment_id: "PAY-0",
         kind: "sale",
         date: date(0),
-        amount: 45000,
-        cost: 38700,
+        amount: demoAmount(industry, 0),
+        cost: Math.round(demoAmount(industry, 0) * 0.86),
         status: "paid",
       },
       null,
@@ -237,6 +242,39 @@ export async function createDemo(industry: "retail" | "education") {
       `INSERT INTO raw_events(id,org_id,source,event_id,payload) SELECT id,org_id,source,event_id,payload FROM jsonb_to_recordset($1::jsonb) AS e(id text,org_id text,source text,event_id text,payload jsonb)`,
       [JSON.stringify(rawEvents)],
     );
+    const baseline = localizeAnalytics(
+      analyze(events, [], 30, demoNow),
+      language,
+    );
+    const planId = uid();
+    await tx.query(
+      "INSERT INTO plans(id,org_id,title,days,baseline) VALUES($1,$2,$3,30,$4)",
+      [planId, orgId, "Демо-план развития · 30 дней", JSON.stringify(baseline)],
+    );
+    for (const insight of baseline.insights.slice(0, 3)) {
+      await tx.query(
+        "INSERT INTO tasks(id,org_id,plan_id,title,description,assignee,due_at,metric,baseline,target,evidence,resources,measurement) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)",
+        [
+          uid(),
+          orgId,
+          planId,
+          insight.action,
+          insight.fact,
+          insight.id === "unanswered" ? managerId : userId,
+          new Date(demoNow.getTime() + 30 * 864e5).toISOString(),
+          insight.metric,
+          insight.value,
+          insight.target,
+          JSON.stringify(insight.evidence),
+          language === "kk"
+            ? "Оқу сценарийі: кәсіпкер мен менеджер"
+            : "Учебный сценарий: владелец и менеджер",
+          language === "kk"
+            ? "Бекіткеннен кейін ұзақтығы бірдей 30 күндік кезеңдерді салыстыру. Жаңа расталған жазбалар қажет; жақсару алдын ала қол жеткізілді деп саналмайды."
+            : "Сравнить равные 30-дневные периоды после утверждения. Нужны новые подтверждённые записи; улучшение не считается достигнутым заранее.",
+        ],
+      );
+    }
   });
   return { userId, orgId };
 }

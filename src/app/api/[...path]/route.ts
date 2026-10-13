@@ -155,9 +155,12 @@ async function handle(req: NextRequest, segments: string[]) {
       20,
     );
     const b = z
-      .object({ industry: z.enum(["retail", "education"]) })
+      .object({
+        industry: z.enum(["retail", "education"]),
+        language: z.enum(["ru", "kk"]).default("ru"),
+      })
       .parse(await payload(req));
-    const r = await createDemo(b.industry);
+    const r = await createDemo(b.industry, b.language);
     await createSession(r.userId, r.orgId);
     return json({ ok: true });
   }

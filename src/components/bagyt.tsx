@@ -54,6 +54,7 @@ import { api, Logo, Robot, Badge, Modal, Stat, Empty, download } from "./ui";
 import Importer from "./importer";
 import Connector from "./connector";
 import Onboarding from "./onboarding";
+import Landing from "./landing";
 import BusinessBrief, { GuidedAssistant } from "./business-brief";
 import { money, dayKey, Event, Task, Insight, cents } from "@/lib/types";
 const icons = [LayoutDashboard, Plug, Lightbulb, Route, BarChart3, Settings];
@@ -119,6 +120,7 @@ export default function Bagyt() {
   const [language, setLanguage] = useState<"ru" | "kk">("ru"),
     [data, setData] = useState<any>(null),
     [loading, setLoading] = useState(true),
+    [showLanding, setShowLanding] = useState(false),
     [section, setSection] = useState("overview"),
     [days, setDays] = useState(30),
     [modal, setModal] = useState<any>(null),
@@ -148,6 +150,8 @@ export default function Bagyt() {
     }
   }, [days, language]);
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("view") === "about")
+      setShowLanding(true);
     const l = localStorage.getItem("bagyt-language");
     if (l === "kk") setLanguage(l);
   }, []);
@@ -199,11 +203,13 @@ export default function Bagyt() {
     return Object.fromEntries(new FormData(e.currentTarget).entries());
   }
   async function demo(industry: string) {
-    await action(
-      () => api("auth/demo", { industry }),
+    setSection("overview");
+    const result = await action(
+      () => api("auth/demo", { industry, language }),
       t("Демо-компания готова", "Демо-компания дайын"),
       true,
     );
+    if (result) setShowLanding(false);
   }
   const open = (value: any) => {
     setError("");
@@ -311,187 +317,18 @@ export default function Bagyt() {
     );
   return (
     <>
-      {!data ? (
-        <div className="landing">
-          <header className="landing-nav">
-            <Logo />
-            <div className="nav-links">
-              <a href="#how">{t("Как это работает", "Қалай жұмыс істейді")}</a>
-              <a href="#features">{t("Возможности", "Мүмкіндіктер")}</a>
-              <button
-                className="lang"
-                onClick={() => setLanguage(language === "ru" ? "kk" : "ru")}
-              >
-                {language === "ru" ? "ҚАЗ" : "РУС"}
-              </button>
-              <button
-                className="secondary"
-                onClick={() => open({ type: "login" })}
-              >
-                {t("Войти", "Кіру")}
-                <ArrowUpRight size={15} />
-              </button>
-            </div>
-          </header>
-          <main className="landing-main">
-            <div className="hero-copy">
-              <span className="eyebrow">
-                <span className="live-dot" />
-                {t("СОЗДАН ДЛЯ ЛОКАЛЬНОГО БИЗНЕСА", "ЖЕРГІЛІКТІ БИЗНЕС ҮШІН")}
-              </span>
-              <h1>
-                {t("Своё дело.", "Өз ісің.")}
-                <br />
-                {t("Своя опора.", "Өз тірегің.")}
-                <br />
-                <em>{t("AQYL рядом.", "AQYL қасыңда.")}</em>
-              </h1>
-              <p>
-                {t(
-                  "Объедините продажи, обращения и расходы. AQYL поможет увидеть главное, выбрать действие и проверить результат.",
-                  "Сату, өтініштер мен шығындарды біріктіріңіз. AQYL маңыздысын көрсетіп, әрекет таңдауға және нәтижені тексеруге көмектеседі.",
-                )}
-              </p>
-              <div className="hero-actions">
-                <button
-                  className="primary"
-                  onClick={() => open({ type: "register" })}
-                >
-                  {t("Создать аккаунт", "Аккаунт ашу")}
-                  <ArrowRight size={18} />
-                </button>
-                <button
-                  className="secondary"
-                  onClick={() => open({ type: "demo" })}
-                >
-                  {t("Посмотреть демо", "Демо көру")}
-                </button>
-              </div>
-              <div className="hero-note">
-                <ShieldCheck size={16} />
-                {t(
-                  "Меньше минуты на старт · Источники подключите позже",
-                  "Бастауға бір минуттан аз · Дереккөздерді кейін қосасыз",
-                )}
-              </div>
-            </div>
-            <div className="hero-visual">
-              <div className="orbit orbit-one" />
-              <div className="orbit orbit-two" />
-              <div className="visual-top">
-                <span className="live-dot" />{" "}
-                {t("AQYL / ВАШ БИЗНЕС-ПОМОЩНИК", "AQYL / БИЗНЕС КӨМЕКШІҢІЗ")}
-              </div>
-              <Robot size={235} />
-              <h3>
-                AQYL <span>Ақыл</span>
-              </h3>
-              <p>
-                {t(
-                  "С пониманием к цифрам. С заботой к вам.",
-                  "Сандарды түсініп, сізге қамқор болады.",
-                )}
-              </p>
-              <div className="float-card float-one">
-                <MessageSquare size={20} />
-                <div>
-                  <b>{t("Обращения", "Өтініштер")}</b>
-                  <small>WhatsApp · Instagram</small>
-                </div>
-                <CheckCircle2 size={16} />
-              </div>
-              <div className="float-card float-two">
-                <BarChart3 size={20} />
-                <div>
-                  <b>{t("Продажи и расходы", "Сату мен шығындар")}</b>
-                  <small>UMAG · сайт · Excel</small>
-                </div>
-                <CheckCircle2 size={16} />
-              </div>
-              <div className="visual-bottom">
-                <span>{t("ПОДКЛЮЧИТЕ", "ҚОСЫҢЫЗ")}</span>
-                <ArrowRight size={13} />
-                <span>{t("ПОЙМИТЕ", "ТҮСІНІҢІЗ")}</span>
-                <ArrowRight size={13} />
-                <span>{t("РАСТИТЕ", "ӨСІҢІЗ")}</span>
-              </div>
-            </div>
-          </main>
-          <div className="trust-strip">
-            <span>
-              {t(
-                "ВСЕ ИСТОЧНИКИ. ОДНА КАРТИНА.",
-                "БАРЛЫҚ ДЕРЕККӨЗ. БІР КӨРІНІС.",
-              )}
-            </span>
-            {[
-              "UMAG / POS",
-              "WhatsApp",
-              "Instagram",
-              "TikTok",
-              "2GIS",
-              "CSV / XLSX",
-            ].map((s) => (
-              <b key={s}>{s}</b>
-            ))}
-          </div>
-          <section className="landing-features" id="how">
-            <div>
-              <span className="eyebrow">01 — 03</span>
-              <h2>
-                {t(
-                  "Меньше догадок. Больше ясности.",
-                  "Аз болжам. Көп айқындық.",
-                )}
-              </h2>
-            </div>
-            <div className="feature-grid" id="features">
-              {[
-                [
-                  Database,
-                  t("Соберите факты", "Деректерді жинаңыз"),
-                  t(
-                    "Начните с одного отчета. Проверьте суммы, исправьте ошибки и исключите дубли.",
-                    "Бір есептен бастаңыз. Сомаларды тексеріп, қателер мен қайталануларды түзетіңіз.",
-                  ),
-                ],
-                [
-                  Lightbulb,
-                  t("Поймите, что важно", "Маңыздысын түсініңіз"),
-                  t(
-                    "У каждого сигнала есть источник, расчет и понятное ограничение данных.",
-                    "Әр белгіде дереккөз, есеп және деректер шектеуі бар.",
-                  ),
-                ],
-                [
-                  Route,
-                  t("Перейдите к действиям", "Әрекетке көшіңіз"),
-                  t(
-                    "Утвердите план, назначьте ответственного и измерьте изменения по новым данным.",
-                    "Жоспарды бекітіп, жауапты адамды тағайындаңыз және өзгерістерді өлшеңіз.",
-                  ),
-                ],
-              ].map(([Icon, title, desc]: any, i) => (
-                <article key={i}>
-                  <span className="feature-number">0{i + 1}</span>
-                  <Icon size={26} />
-                  <h3>{title}</h3>
-                  <p>{desc}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-          <footer>
-            <Logo />
-            <span>
-              {t(
-                "Тараз, Казахстан · От данных к росту.",
-                "Тараз, Қазақстан · Деректерден өсуге.",
-              )}
-            </span>
-            <span>Hackathon MVP / 2026</span>
-          </footer>
-        </div>
+      {!data || showLanding ? (
+        <Landing
+          language={language}
+          onLanguage={() => setLanguage(language === "ru" ? "kk" : "ru")}
+          onRegister={() => open({ type: "register" })}
+          hasAccount={!!data}
+          onLogin={() =>
+            data ? setShowLanding(false) : open({ type: "login" })
+          }
+          onDemo={demo}
+          busy={busy}
+        />
       ) : (
         <div className="app-shell">
           <aside className={"sidebar " + (mobile ? "mobile-open" : "")}>
@@ -538,6 +375,18 @@ export default function Bagyt() {
               })}
             </nav>
             <div className="sidebar-bottom">
+              <button
+                className="about-project-button"
+                onClick={() => {
+                  setShowLanding(true);
+                  setMobile(false);
+                  window.scrollTo({ top: 0 });
+                }}
+              >
+                <Store size={16} />
+                {t("О BAGYT и примеры", "BAGYT туралы және мысалдар")}
+                <ArrowUpRight size={14} />
+              </button>
               <div className="sidebar-aqyl">
                 <Robot size={45} />
                 <b>AQYL {t("рядом", "қасыңызда")}</b>
@@ -666,6 +515,40 @@ export default function Bagyt() {
               </div>
               {section === "overview" && (
                 <>
+                  {data.org.demo && (
+                    <section className="demo-walkthrough">
+                      <div>
+                        <span>{t("УЧЕБНЫЙ БИЗНЕС", "ОҚУ МЫСАЛЫ")}</span>
+                        <h2>
+                          {t(
+                            "Попробуйте управлять этим бизнесом",
+                            "Осы бизнесті басқарып көріңіз",
+                          )}
+                        </h2>
+                        <p>
+                          {t(
+                            "Все данные вымышлены. Изучите записи, откройте разбор и утвердите готовый черновик плана.",
+                            "Барлық деректер ойдан құрастырылған. Жазбаларды қарап, талдауды ашыңыз және дайын жоспар жобасын бекітіңіз.",
+                          )}
+                        </p>
+                      </div>
+                      <div className="demo-walkthrough-actions">
+                        <button onClick={() => nav("connect")}>
+                          <span>1</span>
+                          {t("Данные", "Деректер")}
+                        </button>
+                        <button onClick={() => nav("insights")}>
+                          <span>2</span>
+                          {t("Разбор", "Талдау")}
+                        </button>
+                        <button onClick={() => nav("growth")}>
+                          <span>3</span>
+                          {t("Готовый план", "Дайын жоспар")}
+                          <ArrowRight size={15} />
+                        </button>
+                      </div>
+                    </section>
+                  )}
                   <BusinessBrief
                     analytics={a}
                     language={language}
@@ -2225,6 +2108,7 @@ export default function Bagyt() {
               language={language}
               onLogin={() => open({ type: "login" })}
               onComplete={async () => {
+                setShowLanding(false);
                 setSection("connect");
                 await reload();
                 close();
