@@ -23,7 +23,7 @@ type Props = {
   language: GuideLanguage;
   data: {
     user: { user_id: string };
-    org: { id: string };
+    org: { id: string; demo?: boolean };
     analytics: GuideAnalytics;
     ai: { enabled: boolean };
   } | null;
@@ -403,7 +403,9 @@ export default function AqylCompanion({
               <small>
                 {busy
                   ? t("Думаю…", "Ойланып тұрмын…")
-                  : t("Я рядом", "Мен қасыңыздамын")}
+                  : data?.org.demo
+                    ? t("Демо-данные", "Демо-деректер")
+                    : t("Я рядом", "Мен қасыңыздамын")}
               </small>
             </div>
             <div>
