@@ -23,6 +23,7 @@ import {
   GuideLanguage,
 } from "@/lib/aqyl-guide";
 type Props = {
+  draft?: { text: string; id: number } | null;
   language: GuideLanguage;
   data: {
     user: { user_id: string };
@@ -64,6 +65,7 @@ function save(key: string, value: string) {
   }
 }
 export default function AqylCompanion({
+  draft,
   language,
   data,
   section,
@@ -124,6 +126,13 @@ export default function AqylCompanion({
     x: Math.max(8, Math.min(window.innerWidth - 116, x)),
     y: Math.max(8, Math.min(window.innerHeight - 134, y)),
   });
+  useEffect(() => {
+    if (draft) {
+      setInput(draft.text.slice(0, 1500));
+      setStep(null);
+      setWelcome(false);
+    }
+  }, [draft]);
   useEffect(() => {
     setPaused(saved("bagyt-aqyl-paused") === "true");
   }, []);

@@ -10,7 +10,7 @@ try {
   await client.query("SELECT pg_advisory_xact_lock(834701)");
   await client.query('CREATE SCHEMA IF NOT EXISTS bagyt');
   await client.query('SET LOCAL search_path TO bagyt,public');
-  for (const name of ['001_initial.sql','002_connections.sql']) {
+  for (const name of ['001_initial.sql','002_connections.sql','003_daily_plans.sql']) {
     await client.query(await readFile(new URL('../migrations/'+name,import.meta.url),'utf8'));
   }
   await client.query('GRANT USAGE ON SCHEMA bagyt TO bagyt_tenant');

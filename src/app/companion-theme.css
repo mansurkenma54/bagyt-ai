@@ -1009,3 +1009,308 @@ html[data-aqyl-motion="paused"] .aqyl-flyer {
     gap: 8px;
   }
 }
+
+/* Today's priorities and a guide that follows the owner through the workspace. */
+#today-plan-slot {
+  scroll-margin-top: 24px;
+}
+.daily-plan {
+  margin: 28px 0;
+  padding: 28px;
+  border: 1px solid #cce2d6;
+  border-radius: 24px;
+  background: #fff;
+}
+.daily-plan > header,
+.daily-title,
+.daily-meta,
+.daily-progress,
+.daily-step-top,
+.daily-coach header,
+.daily-coach header > div,
+.daily-coach-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.daily-plan > header {
+  justify-content: space-between;
+}
+.daily-plan h2 {
+  margin: 7px 0 0;
+  font-size: 27px;
+  letter-spacing: -0.8px;
+}
+.daily-meta {
+  margin: 20px 0 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: #668373;
+}
+.daily-meta > span {
+  padding: 5px 9px;
+  border-radius: 30px;
+  background: #eff7f2;
+}
+.daily-summary {
+  max-width: 850px;
+  color: #194b37;
+  font-size: 16px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+.daily-facts,
+.daily-footnote {
+  color: #6b8275;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.daily-warning {
+  font-size: 13px;
+  color: #85621c;
+  padding: 12px;
+  border-radius: 10px;
+  background: #fffae9;
+}
+.daily-progress {
+  justify-content: space-between;
+  margin: 18px 0;
+  color: #3e6853;
+  font-size: 12px;
+}
+.daily-progress progress {
+  width: 130px;
+  height: 6px;
+  accent-color: #08bd7c;
+}
+.daily-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.daily-steps > article {
+  display: flex;
+  flex-direction: column;
+  padding: 21px;
+  border: 1px solid #dce8df;
+  border-radius: 17px;
+  background: #fbfdfb;
+}
+.daily-step-top {
+  justify-content: space-between;
+  color: #668373;
+}
+.daily-number {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  background: #def8eb;
+  color: #008b59;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 13px;
+}
+.daily-steps h3 {
+  margin: 15px 0 8px;
+  font-size: 19px;
+  letter-spacing: -0.4px;
+}
+.daily-steps p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #658071;
+  margin: 0 0 13px;
+}
+.daily-step-actions {
+  margin-top: auto;
+  padding-top: 16px;
+}
+.daily-step-actions button {
+  min-height: 42px;
+}
+.daily-proof {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  background: none;
+  padding: 3px 0;
+  color: #078855;
+  cursor: pointer;
+  text-align: left;
+  font-size: 12px;
+}
+.daily-steps > .is-done {
+  background: #f1f8f3;
+}
+.daily-complete {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #008653;
+}
+.daily-loading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 28px 0;
+  padding: 24px;
+  background: #f4faf6;
+  border-radius: 15px;
+}
+.daily-loading svg {
+  animation: daily-spin 1.5s linear infinite;
+  flex-shrink: 0;
+}
+.daily-loading p {
+  color: #698173;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 8px 0 0;
+}
+.daily-coach {
+  position: fixed;
+  left: calc(var(--sidebar-width, 250px) + 28px);
+  bottom: 22px;
+  width: 420px;
+  max-width: calc(100vw - 40px);
+  max-height: 65vh;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #ace3c8;
+  border-radius: 19px;
+  padding: 20px;
+  z-index: 80;
+  box-shadow: 0 14px 65px #05342126;
+}
+.daily-coach.in-form {
+  position: static;
+  width: auto;
+  max-width: none;
+  max-height: none;
+  box-shadow: none;
+  margin-bottom: 20px;
+  background: #f0faf5;
+}
+.daily-coach header {
+  justify-content: space-between;
+  color: #078451;
+  font-size: 12px;
+}
+.daily-coach header .icon-button {
+  width: 28px;
+  height: 28px;
+}
+.daily-coach h3 {
+  margin: 12px 0 8px;
+  font-size: 18px;
+}
+.daily-coach p {
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0 0 10px;
+}
+.daily-coach-actions {
+  margin-top: 15px;
+  gap: 8px;
+}
+.daily-coach-actions button {
+  min-height: 40px;
+  font-size: 12px;
+  padding: 9px 11px;
+}
+.daily-coach small {
+  display: block;
+  color: #708676;
+  font-size: 11px;
+  line-height: 1.65;
+  margin-top: 9px;
+}
+.daily-example {
+  padding: 12px;
+  margin: 12px 0;
+  background: #fff;
+  border: 1px dashed #bbd9c9;
+  border-radius: 10px;
+}
+.daily-example small {
+  margin-top: 0;
+}
+.daily-example p {
+  margin: 5px 0;
+  user-select: text;
+}
+.daily-example button {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  border: 0;
+  background: none;
+  color: #087a4e;
+  font-size: 11px;
+  cursor: pointer;
+}
+.aqyl-field-coach[hidden] {
+  display: none;
+}
+.daily-coach.is-folded {
+  padding: 10px 16px;
+}
+@keyframes daily-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 1000px) {
+  .daily-coach {
+    left: 22px;
+  }
+}
+@media (max-width: 600px) {
+  .daily-plan {
+    padding: 17px;
+    border-radius: 18px;
+  }
+  .daily-plan h2 {
+    font-size: 22px;
+  }
+  .daily-title {
+    gap: 8px;
+  }
+  .daily-title .robot {
+    display: none;
+  }
+  .daily-steps {
+    grid-template-columns: 1fr;
+  }
+  .daily-coach {
+    left: 12px;
+    bottom: 115px;
+    max-width: calc(100vw - 24px);
+    max-height: 60dvh;
+    padding: 16px;
+  }
+  .daily-coach.in-form {
+    max-width: none;
+    max-height: none;
+  }
+  .daily-coach-actions {
+    flex-wrap: wrap;
+  }
+  .daily-progress {
+    flex-wrap: wrap;
+  }
+  .daily-loading {
+    padding: 14px;
+  }
+  .daily-plan .note-label {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .daily-loading svg {
+    animation: none;
+  }
+}

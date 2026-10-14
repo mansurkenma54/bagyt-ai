@@ -83,6 +83,9 @@ export function db(): Promise<Database> {
     await pg.exec(
       await readFile(path.resolve("migrations/002_connections.sql"), "utf8"),
     );
+    await pg.exec(
+      await readFile(path.resolve("migrations/003_daily_plans.sql"), "utf8"),
+    );
     return pg;
   })());
 }

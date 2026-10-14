@@ -65,15 +65,13 @@ export default function BusinessBrief({
           </p>
           <button
             className="primary"
-            onClick={
-              ready ? onChat : owner ? onImport : () => onNavigate("connect")
+            onClick={() =>
+              document
+                .getElementById("today-plan-slot")
+                ?.scrollIntoView({ block: "start", behavior: "smooth" })
             }
           >
-            {ready
-              ? t("Объясни мою ситуацию", "Жағдайымды түсіндір")
-              : owner
-                ? t("Добавить первый отчёт", "Алғашқы есепті қосу")
-                : t("Посмотреть данные", "Деректерді көру")}
+            {t("Мой план на сегодня", "Бүгінгі жоспарым")}
             <ArrowRight size={18} />
           </button>
         </div>
@@ -134,6 +132,7 @@ export default function BusinessBrief({
           ))}
         </section>
       )}
+      <div id="today-plan-slot" />
       <div className="next-grid">
         <section className="next-step-card">
           <span className="note-label">

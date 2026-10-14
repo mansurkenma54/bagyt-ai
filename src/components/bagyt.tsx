@@ -56,6 +56,7 @@ import Connector from "./connector";
 import Onboarding from "./onboarding";
 import Landing from "./landing";
 import AqylCompanion from "./aqyl-companion";
+import DailyPlanView from "./daily-plan";
 import {
   aqylActions,
   allowedAqylActions,
@@ -128,6 +129,11 @@ export default function Bagyt() {
     [loading, setLoading] = useState(true),
     [showLanding, setShowLanding] = useState(false),
     [companionOpen, setCompanionOpen] = useState(false),
+    [dailyActive, setDailyActive] = useState(false),
+    [assistantDraft, setAssistantDraft] = useState<{
+      text: string;
+      id: number;
+    } | null>(null),
     [guideTarget, setGuideTarget] = useState<AqylAction | null>(null),
     [section, setSection] = useState("overview"),
     [days, setDays] = useState(30),
@@ -2143,7 +2149,8 @@ export default function Bagyt() {
           {(modal.type === "manual" || modal.type === "import") && (
             <>
               <div id="aqyl-modal-host" />
-              <div className="aqyl-field-coach">
+              <div id="daily-guide-slot" />
+              <div className="aqyl-field-coach" hidden={dailyActive}>
                 <Robot
                   size={48}
                   onClick={() => setCompanionOpen(true)}
@@ -3088,7 +3095,27 @@ export default function Bagyt() {
           )}
         </Modal>
       )}
+      <DailyPlanView
+        data={data}
+        language={language}
+        days={days}
+        visible={!!data && !showLanding && section === "overview"}
+        modal={modal?.type || ""}
+        chatOpen={companionOpen}
+        onGuide={guideTo}
+        onClear={() => setGuideTarget(null)}
+        onActive={setDailyActive}
+        onAsk={(text) => {
+          setAssistantDraft({ text, id: Date.now() });
+          setCompanionOpen(true);
+        }}
+        onEvidence={(id) => {
+          const event = data?.events.find((e: Event) => e.id === id);
+          if (event) open({ type: "record", event });
+        }}
+      />
       <AqylCompanion
+        draft={assistantDraft}
         language={language}
         data={data}
         section={section}

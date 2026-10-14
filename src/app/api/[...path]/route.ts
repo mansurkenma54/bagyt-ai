@@ -33,6 +33,8 @@ import {
 import { localizeAnalytics, sourceDescriptions } from "@/lib/i18n";
 import { Context, Event, Task, cents } from "@/lib/types";
 import { sourceCatalog } from "@/lib/adapters";
+import { composeDailyPlan, dailyFingerprint } from "@/lib/daily-plan";
+import { dayKey } from "@/lib/types";
 export const runtime = "nodejs";
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
@@ -969,6 +971,146 @@ async function handle(req: NextRequest, segments: string[]) {
       },
     );
     return json(await response.json(), response.status);
+  }
+  if (route === "aqyl/today" && req.method === "POST") {
+    const b = z
+      .object({
+        days: z.union([z.literal(7), z.literal(30), z.literal(60)]).default(30),
+        language: z.enum(["ru", "kk"]).default("ru"),
+        refresh: z.boolean().default(false),
+      })
+      .parse(await payload(req));
+    const now = new Date(),
+      day = dayKey(now);
+    const snapshot = await tenant(ctx.org_id, async (tx) => {
+      const org = (
+        await tx.query(
+          "SELECT name,industry,city,goal,revenue_target,demo FROM organizations WHERE id=$1",
+          [ctx.org_id],
+        )
+      ).rows[0];
+      const d = await dataset(tx);
+      const tasks =
+        ctx.role === "manager"
+          ? d.tasks.filter((t) => t.assignee === ctx.user_id)
+          : d.tasks;
+      const fingerprint = dailyFingerprint(
+        org,
+        d.events,
+        tasks,
+        b.days,
+        ctx.role,
+        now,
+      );
+      const cached = (
+        await tx.query(
+          "SELECT * FROM aqyl_daily_plans WHERE user_id=$1 AND day=$2 AND days=$3 AND language=$4",
+          [ctx.user_id, day, b.days, b.language],
+        )
+      ).rows[0];
+      return { org, events: d.events, tasks, fingerprint, cached };
+    });
+    let row = snapshot.cached;
+    if (!row || row.fingerprint !== snapshot.fingerprint || b.refresh) {
+      await rateLimit("daily-ai:" + ctx.user_id, 12);
+      const context = businessContext(
+        snapshot.org,
+        snapshot.events,
+        snapshot.tasks,
+        b.days,
+        ctx.role,
+        now,
+      );
+      const plan = await composeDailyPlan(context, snapshot.events, b.language);
+      row = await tenant(ctx.org_id, async (tx) => {
+        const saved = (
+          await tx.query(
+            "INSERT INTO aqyl_daily_plans(id,org_id,user_id,day,days,language,fingerprint,plan,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT(org_id,user_id,day,days,language) DO UPDATE SET fingerprint=EXCLUDED.fingerprint,plan=EXCLUDED.plan,created_at=EXCLUDED.created_at WHERE aqyl_daily_plans.created_at <= EXCLUDED.created_at RETURNING *",
+            [
+              uid(),
+              ctx.org_id,
+              ctx.user_id,
+              day,
+              b.days,
+              b.language,
+              snapshot.fingerprint,
+              JSON.stringify(plan),
+              now.toISOString(),
+            ],
+          )
+        ).rows[0];
+        return (
+          saved ||
+          (
+            await tx.query(
+              "SELECT * FROM aqyl_daily_plans WHERE user_id=$1 AND day=$2 AND days=$3 AND language=$4",
+              [ctx.user_id, day, b.days, b.language],
+            )
+          ).rows[0]
+        );
+      });
+    }
+    const progress = await tenant(
+      ctx.org_id,
+      async (tx) =>
+        (
+          await tx.query(
+            "SELECT step_id FROM aqyl_daily_progress WHERE user_id=$1 AND day=$2 AND days=$3 AND done=true",
+            [ctx.user_id, day, b.days],
+          )
+        ).rows,
+    );
+    return json({
+      ...row.plan,
+      id: row.id,
+      day,
+      days: b.days,
+      fingerprint: row.fingerprint,
+      createdAt: row.created_at,
+      completed: progress
+        .map((p) => p.step_id)
+        .filter((id) =>
+          row.plan.steps.some((s: { id: string }) => s.id === id),
+        ),
+    });
+  }
+  if (route === "aqyl/today/progress" && req.method === "POST") {
+    const b = z
+      .object({
+        id: z.string().uuid(),
+        fingerprint: z.string().length(64),
+        stepId: z.string().max(100),
+        done: z.boolean(),
+      })
+      .parse(await payload(req));
+    return tenant(ctx.org_id, async (tx) => {
+      const row = (
+        await tx.query(
+          "SELECT * FROM aqyl_daily_plans WHERE id=$1 AND user_id=$2 FOR UPDATE",
+          [b.id, ctx.user_id],
+        )
+      ).rows[0];
+      if (!row) throw new HttpError(404, "План не найден");
+      if (row.day !== dayKey(new Date()) || row.fingerprint !== b.fingerprint)
+        throw new HttpError(
+          409,
+          "План обновился. Вернитесь на главную и обновите его.",
+        );
+      if (!row.plan.steps.some((s: { id: string }) => s.id === b.stepId))
+        throw new HttpError(400, "Шаг не принадлежит этому плану");
+      await tx.query(
+        "INSERT INTO aqyl_daily_progress(org_id,user_id,day,days,step_id,done) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT(org_id,user_id,day,days,step_id) DO UPDATE SET done=EXCLUDED.done,updated_at=now()",
+        [ctx.org_id, ctx.user_id, row.day, row.days, b.stepId, b.done],
+      );
+      await audit(
+        tx,
+        ctx,
+        b.done ? "daily.step.completed" : "daily.step.reopened",
+        b.stepId,
+        { reportedByUser: true },
+      );
+      return json({ ok: true });
+    });
   }
   if (route === "aqyl" && req.method === "POST") {
     const b = aqylRequest.parse(await payload(req));
