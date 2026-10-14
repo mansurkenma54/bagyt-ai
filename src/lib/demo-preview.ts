@@ -8,7 +8,7 @@ export function demoPreview(industry: DemoIndustry) {
     demoAmount(industry, day),
   );
   return {
-    name: industry === "retail" ? "Dala Store" : "Bilim Academy",
+    name: industry === "retail" ? "Тестовый бизнес" : "Учебный пример",
     revenue: sales.reduce((a, b) => a + b, 0),
     expenses: 204000,
     priorExpenses: 138000,

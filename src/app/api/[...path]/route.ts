@@ -195,6 +195,15 @@ async function handle(req: NextRequest, segments: string[]) {
           "SELECT id,name,industry,city,employees,branches,goal,channels,demo,revenue_target FROM organizations",
         )
       ).rows[0];
+      if (org.demo)
+        org.name =
+          org.industry === "education"
+            ? language === "kk"
+              ? "Оқу мысалы"
+              : "Учебный пример"
+            : language === "kk"
+              ? "Тест бизнесі"
+              : "Тестовый бизнес";
       const connections = (
         await tx.query<Record<string, any>>(
           "SELECT provider,identifier,mode,permissions,updated_at FROM connections",

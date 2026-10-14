@@ -19,16 +19,18 @@ import {
 import { api, Robot } from "./ui";
 export default function Onboarding({
   language,
+  initialIndustry = "",
   onComplete,
   onLogin,
 }: {
   language: "ru" | "kk";
+  initialIndustry?: string;
   onComplete: () => Promise<void>;
   onLogin: () => void;
 }) {
   const t = (r: string, k: string) => (language === "ru" ? r : k);
-  const [step, setStep] = useState(0),
-    [industry, setIndustry] = useState(""),
+  const [step, setStep] = useState(initialIndustry ? 1 : 0),
+    [industry, setIndustry] = useState(initialIndustry),
     [goal, setGoal] = useState(""),
     [organization, setOrganization] = useState(""),
     [email, setEmail] = useState(""),
@@ -255,9 +257,10 @@ export default function Onboarding({
                 maxLength={100}
                 value={organization}
                 onChange={(e) => setOrganization(e.target.value)}
-                placeholder={
-                  industry === "education" ? "Bilim Academy" : "Dala Store"
-                }
+                placeholder={t(
+                  "Название вашего бизнеса",
+                  "Бизнесіңіздің атауы",
+                )}
                 disabled={created || busy}
               />
             </label>

@@ -302,7 +302,7 @@ export default function Bagyt() {
       )}
     </>
   );
-  if (loading)
+  if (loading && !showLanding)
     return (
       <div className="loading-screen">
         <Logo />
@@ -321,13 +321,11 @@ export default function Bagyt() {
         <Landing
           language={language}
           onLanguage={() => setLanguage(language === "ru" ? "kk" : "ru")}
-          onRegister={() => open({ type: "register" })}
+          onRegister={(industry) => open({ type: "register", industry })}
           hasAccount={!!data}
           onLogin={() =>
             data ? setShowLanding(false) : open({ type: "login" })
           }
-          onDemo={demo}
-          busy={busy}
         />
       ) : (
         <div className="app-shell">
@@ -384,7 +382,7 @@ export default function Bagyt() {
                 }}
               >
                 <Store size={16} />
-                {t("О BAGYT и примеры", "BAGYT туралы және мысалдар")}
+                {t("Знакомство с BAGYT", "BAGYT-пен танысу")}
                 <ArrowUpRight size={14} />
               </button>
               <div className="sidebar-aqyl">
@@ -516,38 +514,18 @@ export default function Bagyt() {
               {section === "overview" && (
                 <>
                   {data.org.demo && (
-                    <section className="demo-walkthrough">
-                      <div>
-                        <span>{t("УЧЕБНЫЙ БИЗНЕС", "ОҚУ МЫСАЛЫ")}</span>
-                        <h2>
-                          {t(
-                            "Попробуйте управлять этим бизнесом",
-                            "Осы бизнесті басқарып көріңіз",
-                          )}
-                        </h2>
-                        <p>
-                          {t(
-                            "Все данные вымышлены. Изучите записи, откройте разбор и утвердите готовый черновик плана.",
-                            "Барлық деректер ойдан құрастырылған. Жазбаларды қарап, талдауды ашыңыз және дайын жоспар жобасын бекітіңіз.",
-                          )}
-                        </p>
-                      </div>
-                      <div className="demo-walkthrough-actions">
-                        <button onClick={() => nav("connect")}>
-                          <span>1</span>
-                          {t("Данные", "Деректер")}
-                        </button>
-                        <button onClick={() => nav("insights")}>
-                          <span>2</span>
-                          {t("Разбор", "Талдау")}
-                        </button>
-                        <button onClick={() => nav("growth")}>
-                          <span>3</span>
-                          {t("Готовый план", "Дайын жоспар")}
-                          <ArrowRight size={15} />
-                        </button>
-                      </div>
-                    </section>
+                    <div className="demo-status-note">
+                      <span>
+                        {t(
+                          "Вы смотрите тестовые данные",
+                          "Сіз тест деректерін қарап отырсыз",
+                        )}
+                      </span>
+                      <button onClick={() => open({ type: "register" })}>
+                        {t("Начать со своим бизнесом", "Өз бизнесіммен бастау")}
+                        <ArrowRight size={15} />
+                      </button>
+                    </div>
                   )}
                   <BusinessBrief
                     analytics={a}
@@ -2105,6 +2083,7 @@ export default function Bagyt() {
           )}
           {modal.type === "register" && (
             <Onboarding
+              initialIndustry={modal.industry}
               language={language}
               onLogin={() => open({ type: "login" })}
               onComplete={async () => {
@@ -2157,7 +2136,10 @@ export default function Bagyt() {
                     required
                     maxLength={100}
                     autoComplete="organization"
-                    placeholder="Dala Store"
+                    placeholder={t(
+                      "Название вашего бизнеса",
+                      "Бизнесіңіздің атауы",
+                    )}
                   />
                 </label>
               )}
@@ -2234,7 +2216,7 @@ export default function Bagyt() {
                 [
                   "retail",
                   Store,
-                  "Dala Store",
+                  "Тестовый бизнес",
                   t(
                     "Магазин · POS, сайт, обращения и расходы",
                     "Дүкен · POS, сайт, өтініштер мен шығындар",
@@ -2243,7 +2225,7 @@ export default function Bagyt() {
                 [
                   "education",
                   GraduationCap,
-                  "Bilim Academy",
+                  "Учебный пример",
                   t(
                     "Учебный центр · оплаты, заявки и кампании",
                     "Оқу орталығы · төлем, өтініш және науқандар",

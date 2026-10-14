@@ -11,7 +11,7 @@ export function Logo() {
         <b>
           BAGYT<span> AI</span>
         </b>
-        <small>ӨЗ ІСІҢЕ СЕН</small>
+        <small>БИЗНЕС КӨМЕКШІСІ</small>
       </span>
     </div>
   );
@@ -75,63 +75,63 @@ export function Robot({
       >
         <ellipse
           className="aqyl-ground"
-          cx="61"
-          cy="108"
-          rx="31"
-          ry="4"
-          fill="#163b3020"
+          cx="59"
+          cy="110"
+          rx="35"
+          ry="3"
+          fill="#00d89022"
         />
         <g className="aqyl-soul">
-          {/* A little direction-star: four soft stepped points and a heart pocket. */}
+          <path d="M57 19h5v19h-5z" fill="#05c880" />
           <path
-            d="M50 14h20v10h10v13h13v10h13v24H94v11H81v16H69v8H50V95H38V82H25V70H13V48h13V37h13V24h11Z"
-            fill="#123e35"
+            className="aqyl-heart"
+            d="M49 9h8v4h5V9h8v4h4v9h-4v4h-5v4h-5v4h-5v-4h-5v-4h-5v-4h-4v-9h4V9z"
+            fill="#28f5a4"
           />
+          <path d="M49 13h6v4h-6z" fill="#bdffe0" />
           <path
-            d="M51 18h17v11h10v14h14v9h10v16H90v11H77v16H66v7H53V91H41V78H28V67H17V51h13V41h13V29h8Z"
-            fill="#88d9ae"
+            d="M30 35h60v5h10v10h5v38h-5v10H83v11H71V98H30v-5H20V83h-5V50h5V40h10Z"
+            fill="#008d59"
           />
-          <path d="M51 18h17v11h10v10H45V29h6Z" fill="#c5f3d5" />
-          <path d="M30 45h58v28H30Z" fill="#c5f3d5" />
-          <g className="soul-eyes soul-normal" fill="#163b30">
-            <path d="M40 49h6v10h-6zM72 49h6v10h-6z" />
-            <path d="M42 49h2v3h-2zM74 49h2v3h-2z" fill="white" />
+          <path d="M30 35h60v5h10v10H20V40h10Z" fill="#9bffd1" />
+          <path d="M26 43h68v7h6v34h-6v9H28v-6h-7V51h5Z" fill="#19df91" />
+          <path d="M31 49h56v5h7v25h-7v8H31v-6h-5V55h5Z" fill="#031e15" />
+          <path d="M6 56h9v23H6zM105 56h9v23h-9z" fill="#3bf4ae" />
+          <path d="M10 61h5v13h-5zM105 61h5v13h-5z" fill="#00ad70" />
+          <g className="soul-eyes soul-normal" fill="#42ffc0">
+            <path d="M38 60h8v11h-8zM73 60h8v11h-8z" />
+            <path d="M39 61h3v3h-3zM74 61h3v3h-3z" fill="#d9fff0" />
           </g>
-          <g className="soul-eyes soul-happy" stroke="#163b30" strokeWidth="4">
-            <path d="M37 56v-5h11v5M69 56v-5h11v5" />
+          <g className="soul-eyes soul-happy" stroke="#42ffc0" strokeWidth="4">
+            <path d="M36 68v-5h4v-3h5v3h4v5M70 68v-5h4v-3h5v3h4v5" />
           </g>
-          <g className="soul-eyes soul-curious" fill="#163b30">
-            <path d="M39 50h9v4h-9zM72 47h6v12h-6zM39 44h9v3h-9z" />
+          <g className="soul-eyes soul-curious" fill="#42ffc0">
+            <path d="M36 63h12v4H36zM73 57h8v13h-8zM36 55h12v3H36z" />
           </g>
-          <g className="soul-eyes soul-sleepy" stroke="#163b30" strokeWidth="3">
-            <path d="M38 55h12m18 0h12" />
+          <g className="soul-eyes soul-sleepy" stroke="#26da98" strokeWidth="3">
+            <path d="M36 68h14m19 0h14" />
           </g>
-          <g className="soul-eyes soul-thinking" fill="#163b30">
-            <path d="M43 47h6v9h-6zM75 47h6v9h-6z" />
+          <g className="soul-eyes soul-thinking" fill="#42ffc0">
+            <path d="M42 58h7v10h-7zM77 58h7v10h-7z" />
           </g>
           <path
             className="soul-smile"
-            d="M52 60v4h12v-4"
-            stroke="#163b30"
+            d="M52 74v4h13v-4"
+            stroke="#3fffb7"
             strokeWidth="3"
           />
-          <path d="M33 60h8v4h-8zM78 60h8v4h-8z" fill="#e59f85" />
-          <path
-            d="M48 74h8v4h5v-4h8v4h4v8h-4v4h-4v4h-4v4h-5v-4h-4v-4h-4v-4h-4v-8h3Z"
-            fill="#f17f6a"
-          />
-          <path d="M49 77h6v4h-6z" fill="#ffd1b7" />
-          <path className="soul-hand" d="M88 72h9v-9h7v16H88Z" fill="#123e35" />
+          <path d="M33 74h7v3h-7zM79 74h7v3h-7z" fill="#077448" />
+          <path d="M76 93h13v5h-7v6h-6Z" fill="#19df91" />
         </g>
-        <g className="soul-thought" fill="#527365">
-          <rect x="85" y="18" width="4" height="4" />
-          <rect x="95" y="13" width="5" height="5" />
-          <rect x="106" y="8" width="6" height="6" />
+        <g className="soul-thought" fill="#18d993">
+          <rect x="91" y="20" width="4" height="4" />
+          <rect x="100" y="15" width="5" height="5" />
+          <rect x="110" y="9" width="6" height="6" />
         </g>
         <path
           className="soul-spark"
-          d="M17 17h4v6h6v4h-6v6h-4v-6h-6v-4h6z"
-          fill="#e89965"
+          d="M10 26h4v-5h4v5h5v4h-5v5h-4v-5h-4Z"
+          fill="#61ffc2"
         />
       </svg>
     </button>

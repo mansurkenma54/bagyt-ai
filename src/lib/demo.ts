@@ -90,7 +90,7 @@ export async function createDemo(
       "INSERT INTO organizations(id,name,industry,city,employees,demo,revenue_target,webhook_secret,goal) VALUES($1,$2,$3,$4,3,true,$5,$6,$7)",
       [
         orgId,
-        industry === "retail" ? "Dala Store" : "Bilim Academy",
+        industry === "retail" ? "Тестовый бизнес" : "Учебный пример",
         industry,
         "Тараз",
         industry === "retail" ? 450000000 : 650000000,
