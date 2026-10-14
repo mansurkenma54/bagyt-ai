@@ -35,6 +35,12 @@ export function db(): Promise<Database> {
       pool.on("error", () => console.error("Database connection interrupted"));
       const transaction = async <T>(fn: (tx: Tx) => Promise<T>): Promise<T> => {
         const client = await pool.connect();
+        // A checked-out client emits its own socket errors, not the pool's.
+        let connectionError: Error | undefined;
+        const onConnectionError = (error: Error) => {
+          connectionError = error;
+        };
+        client.on("error", onConnectionError);
         try {
           await client.query("BEGIN");
           await client.query("SET LOCAL search_path TO bagyt, public");
@@ -48,10 +54,15 @@ export function db(): Promise<Database> {
           await client.query("COMMIT");
           return result;
         } catch (error) {
-          await client.query("ROLLBACK");
+          try {
+            await client.query("ROLLBACK");
+          } catch (rollbackError) {
+            connectionError = rollbackError as Error;
+          }
           throw error;
         } finally {
-          client.release();
+          client.removeListener("error", onConnectionError);
+          client.release(connectionError);
         }
       };
       return {
