@@ -19,9 +19,13 @@ export function Logo() {
 export function Robot({
   size = 72,
   state = "greeting",
+  onClick,
+  label,
 }: {
   size?: number;
   state?: string;
+  onClick?: () => void;
+  label?: string;
 }) {
   const [mood, setMood] = useState("idle");
   const [hover, setHover] = useState(false);
@@ -57,10 +61,14 @@ export function Robot({
       type="button"
       className={`robot soul-robot mood-${emotion}`}
       style={{ width: size, height: size }}
-      aria-label={`AQYL: ${names[emotion]}. Нажмите, чтобы сменить настроение / Көңіл күйін өзгерту`}
+      aria-label={
+        label ||
+        `AQYL: ${names[emotion]}. Нажмите, чтобы сменить настроение / Көңіл күйін өзгерту`
+      }
       onPointerEnter={() => setHover(true)}
       onPointerLeave={() => setHover(false)}
       onClick={() => {
+        onClick?.();
         setHover(false);
         setMood((m) =>
           m === "happy" ? "curious" : m === "curious" ? "sleepy" : "happy",

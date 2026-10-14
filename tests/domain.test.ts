@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { PGlite } from "@electric-sql/pglite";
 import { readFile } from "node:fs/promises";
 import { analyze } from "../src/lib/analytics";
+import { answerGuide } from "../src/lib/aqyl-guide";
 import { cents, Event } from "../src/lib/types";
 import { insertEvent, parseRow, resolveEvent } from "../src/lib/events";
 import type { Tx } from "../src/lib/db";
@@ -24,6 +25,42 @@ const event = (overrides: Partial<Event> = {}): Event => ({
   payload: {},
   created_at: "2026-10-12T12:00:00Z",
   ...overrides,
+});
+
+test("AQYL distinguishes missing data from a measured zero", () => {
+  const empty = answerGuide("Что с продажами?", "ru", analyze([], [], 30, now));
+  assert.match(empty!.text, /нет подтверждённых/);
+  assert.equal(empty!.destination, "connect");
+  const measured = answerGuide(
+    "Что с продажами?",
+    "ru",
+    analyze(
+      [
+        event(),
+        event({ kind: "refund", amount: 10000 }),
+        event({ verified: false, amount: 9999900 }),
+      ],
+      [],
+      30,
+      now,
+    ),
+  );
+  assert.match(measured!.text, /выручка 0/);
+  assert.doesNotMatch(measured!.text, /99999|99.?999/);
+  assert.equal(measured!.destination, "overview");
+});
+
+test("AQYL keeps unsupported requests and demo sources explicit", () => {
+  assert.equal(answerGuide("Какая завтра погода?", "ru"), null);
+  assert.match(
+    answerGuide("Как подключить WhatsApp?", "ru")!.text,
+    /демонстрационные/,
+  );
+  assert.match(answerGuide("Сату қалай?", "kk")!.text, /расталған жазбалар/);
+  assert.equal(
+    answerGuide("Неден бастау керек?", "kk")!.destination,
+    "register",
+  );
 });
 test("exact minor-unit parsing rejects invalid money", () => {
   assert.equal(cents("1 234,56"), 123456);

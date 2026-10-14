@@ -79,7 +79,12 @@ export default function BusinessBrief({
         </div>
         <div className="companion-scene">
           <span className="scene-orbit" />
-          <Robot size={210} state={ready ? "greeting" : "curious"} />
+          <Robot
+            size={210}
+            state={ready ? "greeting" : "curious"}
+            onClick={onChat}
+            label={t("Поговорить с AQYL", "AQYL-мен сөйлесу")}
+          />
           <span className="companion-speech">
             {t("Сәлем! Я рядом.", "Сәлем! Мен қасыңдамын.")}
           </span>

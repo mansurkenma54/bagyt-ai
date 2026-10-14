@@ -55,6 +55,7 @@ import Importer from "./importer";
 import Connector from "./connector";
 import Onboarding from "./onboarding";
 import Landing from "./landing";
+import AqylCompanion from "./aqyl-companion";
 import BusinessBrief, { GuidedAssistant } from "./business-brief";
 import { money, dayKey, Event, Task, Insight, cents } from "@/lib/types";
 const icons = [LayoutDashboard, Plug, Lightbulb, Route, BarChart3, Settings];
@@ -121,6 +122,7 @@ export default function Bagyt() {
     [data, setData] = useState<any>(null),
     [loading, setLoading] = useState(true),
     [showLanding, setShowLanding] = useState(false),
+    [companionOpen, setCompanionOpen] = useState(false),
     [section, setSection] = useState("overview"),
     [days, setDays] = useState(30),
     [modal, setModal] = useState<any>(null),
@@ -213,6 +215,10 @@ export default function Bagyt() {
   }
   const open = (value: any) => {
     setError("");
+    if (value.type === "chat") {
+      setCompanionOpen(true);
+      return;
+    }
     setModal(value);
   };
   const status = (s: string) =>
@@ -320,6 +326,7 @@ export default function Bagyt() {
       {!data || showLanding ? (
         <Landing
           language={language}
+          onAssistant={() => setCompanionOpen(true)}
           onLanguage={() => setLanguage(language === "ru" ? "kk" : "ru")}
           onRegister={(industry) => open({ type: "register", industry })}
           hasAccount={!!data}
@@ -386,7 +393,11 @@ export default function Bagyt() {
                 <ArrowUpRight size={14} />
               </button>
               <div className="sidebar-aqyl">
-                <Robot size={45} />
+                <Robot
+                  size={45}
+                  onClick={() => setCompanionOpen(true)}
+                  label={t("Спросить AQYL", "AQYL-дан сұрау")}
+                />
                 <b>AQYL {t("рядом", "қасыңызда")}</b>
                 <p>
                   {t(
@@ -933,6 +944,8 @@ export default function Bagyt() {
                     </div>
                     <Robot
                       size={132}
+                      onClick={() => setCompanionOpen(true)}
+                      label={t("Спросить AQYL", "AQYL-дан сұрау")}
                       state={
                         busy
                           ? "thinking"
@@ -1422,7 +1435,12 @@ export default function Bagyt() {
               {section === "growth" && (
                 <>
                   <section className="plan-hero">
-                    <Robot size={110} state={busy ? "thinking" : "greeting"} />
+                    <Robot
+                      size={110}
+                      state={busy ? "thinking" : "greeting"}
+                      onClick={() => setCompanionOpen(true)}
+                      label={t("Спросить AQYL", "AQYL-дан сұрау")}
+                    />
                     <div>
                       <span className="eyebrow">AQYL GROWTH PLANNER</span>
                       <h2>
@@ -2107,6 +2125,7 @@ export default function Bagyt() {
                 action(
                   async () => {
                     await api("auth/" + modal.type, b);
+                    setShowLanding(false);
                     if (modal.type === "register") setSection("connect");
                   },
                   undefined,
@@ -2964,6 +2983,20 @@ export default function Bagyt() {
           )}
         </Modal>
       )}
+      <AqylCompanion
+        language={language}
+        data={data}
+        section={section}
+        landing={!data || showLanding}
+        suspended={!!modal || mobile}
+        open={companionOpen}
+        setOpen={setCompanionOpen}
+        onNavigate={(key) => {
+          setShowLanding(false);
+          nav(key);
+        }}
+        onRegister={() => open({ type: "register" })}
+      />
     </>
   );
 }
