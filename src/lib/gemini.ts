@@ -148,7 +148,7 @@ export async function askGemini(
   b: AqylRequest,
   context: ReturnType<typeof businessContext>,
 ) {
-  const model = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
+  const model = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
   if (!/^[a-zA-Z0-9.-]+$/.test(model))
     throw new GeminiError(503, "Модель AI не настроена.");
   const actions = allowedAqylActions(context.role).map((id) => ({
