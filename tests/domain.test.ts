@@ -240,3 +240,35 @@ test("PostgreSQL RLS, cross-company imports, repeat imports, and duplicate resol
     await pg.close();
   }
 });
+
+test("A date-only sale entered in the morning belongs to today's analytics", () => {
+  const parsed = parseRow({
+    external_id: "morning-sale",
+    kind: "sale",
+    date: "2026-10-14",
+    amount: "8000",
+    cost: "3000",
+  });
+  assert.equal(parsed.date, "2026-10-13T19:00:00.000Z");
+  const metrics = analyze(
+    [
+      event({
+        occurred_at: parsed.date,
+        amount: parsed.amountCents,
+        cost: parsed.costCents,
+      }),
+    ],
+    [],
+    7,
+    new Date("2026-10-14T04:00:00Z"),
+  );
+  assert.equal(metrics.revenue, 800000);
+  assert.equal(metrics.gross, 500000);
+  const timestamp = parseRow({
+    external_id: "precise",
+    kind: "sale",
+    date: "2026-10-14T08:30:00+05:00",
+    amount: "8000",
+  });
+  assert.equal(timestamp.date, "2026-10-14T03:30:00.000Z");
+});

@@ -99,6 +99,13 @@ export function businessContext(
       costMinor: e.cost,
       status: e.status,
     })),
+    availability: {
+      verifiedInPeriod: accepted.length,
+      futureDated: events.filter(
+        (e) => e.verified && !e.duplicate_of && +new Date(e.occurred_at) > +now,
+      ).length,
+      note: "coverage.verified counts all dates; recordSample.available counts only the selected period. Future timestamps are excluded until that time.",
+    },
     recordSample: {
       shown: Math.min(40, accepted.length),
       available: accepted.length,

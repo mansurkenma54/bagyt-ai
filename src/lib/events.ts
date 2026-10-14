@@ -35,7 +35,7 @@ export function parseRow(raw: unknown) {
       "Дата должна быть корректной ISO-датой YYYY-MM-DD или ISO timestamp с часовым поясом",
     );
   const dt = /^\d{4}-\d{2}-\d{2}$/.test(row.date)
-    ? `${row.date}T12:00:00+05:00`
+    ? `${row.date}T00:00:00+05:00`
     : row.date;
   if (!Number.isFinite(+new Date(dt))) throw new Error("Некорректная дата");
   if (+new Date(dt) > Date.now() + 864e5)
