@@ -946,3 +946,66 @@ html[data-aqyl-motion="paused"] .aqyl-flyer {
     transition: none;
   }
 }
+
+/* Contextual AI stays available inside the form's accessible dialog. */
+.aqyl-answer p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.aqyl-field-highlight {
+  outline: 3px solid #04b47c !important;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 7px #05bc7818 !important;
+}
+.aqyl-field-coach {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  margin: 0 0 24px;
+  border: 1px solid #bfe8d7;
+  background: #f0faf5;
+  border-radius: 15px;
+}
+.aqyl-field-coach > div {
+  flex: 1;
+  min-width: 0;
+}
+.aqyl-field-coach b {
+  font-size: 13px;
+  color: #125b3f;
+}
+.aqyl-field-coach p {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 6px 0;
+}
+.aqyl-field-coach button:not(.robot),
+.aqyl-evidence button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 6px 12px 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #087749;
+  font-size: 12px;
+  cursor: pointer;
+}
+.aqyl-evidence {
+  display: flex;
+  flex-wrap: wrap;
+}
+#aqyl-modal-host .aqyl-window {
+  z-index: 105;
+}
+#aqyl-modal-host .aqyl-dock {
+  z-index: 104;
+}
+@media (max-width: 600px) {
+  .aqyl-field-coach {
+    padding: 12px;
+    gap: 8px;
+  }
+}

@@ -23,6 +23,13 @@ import {
 import { createDemo } from "@/lib/demo";
 import { insertEvent, resolveEvent, parseRow } from "@/lib/events";
 import { analyze } from "@/lib/analytics";
+import {
+  aiConfiguration,
+  aqylRequest,
+  askGemini,
+  businessContext,
+  GeminiError,
+} from "@/lib/gemini";
 import { localizeAnalytics, sourceDescriptions } from "@/lib/i18n";
 import { Context, Event, Task, cents } from "@/lib/types";
 import { sourceCatalog } from "@/lib/adapters";
@@ -285,10 +292,7 @@ async function handle(req: NextRequest, segments: string[]) {
           )
         ).rows,
         storage: process.env.DATABASE_URL ? "cloud" : "local",
-        ai: {
-          enabled: !!process.env.OPENAI_API_KEY,
-          mode: process.env.OPENAI_API_KEY ? "LLM" : "rules",
-        },
+        ai: aiConfiguration(),
         ocr: {
           mode: "Tesseract",
           languages: process.env.OCR_LANGUAGES || "eng+rus",
@@ -967,21 +971,38 @@ async function handle(req: NextRequest, segments: string[]) {
     return json(await response.json(), response.status);
   }
   if (route === "aqyl" && req.method === "POST") {
-    const b = z
-      .object({
-        question: z.string().min(1).max(2000),
-        language: z.enum(["ru", "kk"]).default("ru"),
-      })
-      .parse(await payload(req));
-    if (!process.env.OPENAI_API_KEY)
-      throw new HttpError(
-        503,
-        "LLM не подключена. Расчеты и правила AQYL работают; добавьте OPENAI_API_KEY в .env.local для свободного диалога.",
-      );
+    const b = aqylRequest.parse(await payload(req));
+    if (!aiConfiguration().enabled)
+      throw new HttpError(503, "Свободный AI-диалог пока не подключён.");
     await rateLimit("ai:" + ctx.user_id, 30);
+    if (process.env.GEMINI_API_KEY) {
+      const summary = await tenant(ctx.org_id, async (tx) => {
+        const org = (
+          await tx.query(
+            "SELECT name,industry,city,goal,revenue_target,demo FROM organizations WHERE id=$1",
+            [ctx.org_id],
+          )
+        ).rows[0];
+        const data = await dataset(tx);
+        const tasks =
+          ctx.role === "manager"
+            ? data.tasks.filter((t) => t.assignee === ctx.user_id)
+            : data.tasks;
+        return businessContext(org, data.events, tasks, b.days, ctx.role);
+      });
+      try {
+        const answer = await askGemini(b, summary);
+        await tenant(ctx.org_id, (tx) => audit(tx, ctx, "aqyl.answered"));
+        return json(answer);
+      } catch (error) {
+        if (error instanceof GeminiError)
+          throw new HttpError(error.status, error.message);
+        throw error;
+      }
+    }
     const a = await tenant(ctx.org_id, async (tx) => {
       const data = await dataset(tx);
-      return analyze(data.events, data.tasks, 30);
+      return analyze(data.events, data.tasks, b.days);
     });
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",

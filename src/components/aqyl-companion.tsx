@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { aqylActions, isAqylAction, type AqylAction } from "@/lib/aqyl-actions";
 import {
+  RotateCcw,
   ArrowLeft,
   ArrowRight,
   BookOpen,
@@ -28,6 +31,11 @@ type Props = {
     ai: { enabled: boolean };
   } | null;
   section: string;
+  days: number;
+  screen: "none" | "manual" | "import" | "connector";
+  focusedField?: string;
+  onGuide: (action: AqylAction) => void;
+  onEvidence: (id: string) => void;
   landing: boolean;
   suspended: boolean;
   open: boolean;
@@ -35,7 +43,12 @@ type Props = {
   onNavigate: (s: string) => void;
   onRegister: () => void;
 };
-type Message = GuideAnswer & { question: string };
+type Message = GuideAnswer & {
+  question: string;
+  action?: AqylAction | null;
+  evidence?: string[];
+  error?: boolean;
+};
 function saved(key: string) {
   try {
     return localStorage.getItem(key);
@@ -54,6 +67,11 @@ export default function AqylCompanion({
   language,
   data,
   section,
+  days,
+  screen,
+  focusedField,
+  onGuide,
+  onEvidence,
   landing,
   suspended,
   open,
@@ -65,6 +83,7 @@ export default function AqylCompanion({
   const [messages, setMessages] = useState<Message[]>([]),
     [input, setInput] = useState(""),
     [busy, setBusy] = useState(false),
+    [pendingQuestion, setPendingQuestion] = useState(""),
     [paused, setPaused] = useState(false),
     [welcome, setWelcome] = useState(false),
     [step, setStep] = useState<number | null>(null),
@@ -89,6 +108,14 @@ export default function AqylCompanion({
     top: number;
   } | null>(null);
   const request = useRef(0);
+  const [modalHost, setModalHost] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setModalHost(
+      screen === "manual" || screen === "import"
+        ? document.getElementById("aqyl-modal-host")
+        : null,
+    );
+  }, [screen]);
   const steps = guideSteps(language),
     current = step === null ? null : steps[step];
   const identity = data ? data.user.user_id + ":" + data.org.id : "guest";
@@ -115,6 +142,7 @@ export default function AqylCompanion({
     request.current++;
     setMessages([]);
     setBusy(false);
+    setPendingQuestion("");
     setInput("");
     setStep(null);
     setWelcome(false);
@@ -204,25 +232,40 @@ export default function AqylCompanion({
     setWelcome(false);
     if (data && !landing) save(seenKey, "seen");
     setStep(null);
-    if (/кноп|батыр|покажи|көрсет|экскурс|знакомств/.test(q.toLowerCase())) {
-      if (data && !landing) {
-        showStep(0);
-        return;
-      }
-    }
-    const local = answerGuide(q, language, data?.analytics);
-    if (local) {
-      setMessages((m) => [...m, { question: q, ...local }].slice(-24));
-      return;
-    }
-    if (data?.ai.enabled && !landing) {
+    if (data?.ai.enabled) {
       const id = ++request.current;
       setBusy(true);
+      setPendingQuestion(q);
       try {
-        const result = await api("aqyl", { question: q, language });
+        const history = messages
+          .filter((m) => !m.error)
+          .slice(-8)
+          .flatMap((m) => [
+            { role: "user", text: m.question },
+            { role: "assistant", text: m.text.slice(0, 8000) },
+          ]);
+        while (history.reduce((n, m) => n + m.text.length, 0) > 28000)
+          history.splice(0, 2);
+        const result = await api("aqyl", {
+          question: q,
+          language,
+          days,
+          section: landing ? "landing" : section,
+          screen,
+          focusedField,
+          history,
+        });
         if (id === request.current)
           setMessages((m) =>
-            [...m, { question: q, text: result.answer }].slice(-24),
+            [
+              ...m,
+              {
+                question: q,
+                text: result.answer,
+                action: isAqylAction(result.action) ? result.action : null,
+                evidence: result.evidence || [],
+              },
+            ].slice(-24),
           );
       } catch (e) {
         if (id === request.current)
@@ -230,16 +273,28 @@ export default function AqylCompanion({
             ...m,
             {
               question: q,
-              text: t(
-                "Не удалось получить ответ. Попробуйте ещё раз или выберите подсказку ниже.",
-                "Жауап алу мүмкін болмады. Қайта көріңіз немесе төмендегі кеңесті таңдаңыз.",
-              ),
+              error: true,
+              text:
+                e instanceof Error
+                  ? e.message
+                  : t(
+                      "Не удалось получить ответ. Повторите запрос.",
+                      "Жауап алу мүмкін болмады. Қайта көріңіз.",
+                    ),
             },
           ]);
       } finally {
-        if (id === request.current) setBusy(false);
+        if (id === request.current) {
+          setBusy(false);
+          setPendingQuestion("");
+        }
       }
-    } else
+    } else {
+      const local = answerGuide(q, language, data?.analytics);
+      if (local) {
+        setMessages((m) => [...m, { question: q, ...local }].slice(-24));
+        return;
+      }
       setMessages((m) =>
         [
           ...m,
@@ -252,6 +307,7 @@ export default function AqylCompanion({
           },
         ].slice(-24),
       );
+    }
   }
   const contextual = landing
     ? t("Сәлем! С чего хотите начать?", "Сәлем! Неден бастағыңыз келеді?")
@@ -279,8 +335,9 @@ export default function AqylCompanion({
                 "Как идут дела? Помогу найти следующий шаг.",
                 "Кәсібіңіз қалай? Келесі қадамды табуға көмектесемін.",
               );
-  if (suspended) return null;
-  return (
+  if (suspended || ((screen === "manual" || screen === "import") && !modalHost))
+    return null;
+  const content = (
     <>
       {current && highlight && (
         <div
@@ -405,10 +462,23 @@ export default function AqylCompanion({
                   ? t("Думаю…", "Ойланып тұрмын…")
                   : data?.org.demo
                     ? t("Демо-данные", "Демо-деректер")
-                    : t("Я рядом", "Мен қасыңыздамын")}
+                    : data?.ai.enabled
+                      ? "Gemini · AI"
+                      : t("Я рядом", "Мен қасыңыздамын")}
               </small>
             </div>
             <div>
+              <button
+                className="icon-button"
+                disabled={busy}
+                aria-label={t("Начать новый разговор", "Жаңа әңгіме бастау")}
+                onClick={() => {
+                  setMessages([]);
+                  finish();
+                }}
+              >
+                <RotateCcw size={16} />
+              </button>
               <button
                 className="icon-button"
                 aria-label={
@@ -506,6 +576,43 @@ export default function AqylCompanion({
                     <p className="aqyl-question">{m.question}</p>
                     <div className="aqyl-answer">
                       <p>{m.text}</p>
+                      {m.action && (
+                        <button
+                          onClick={() => {
+                            finish();
+                            setOpen(false);
+                            onGuide(m.action!);
+                          }}
+                        >
+                          {
+                            aqylActions[m.action].title[
+                              language === "ru" ? 0 : 1
+                            ]
+                          }{" "}
+                          <ArrowRight size={15} />
+                        </button>
+                      )}
+                      {!!m.evidence?.length && (
+                        <div className="aqyl-evidence">
+                          {m.evidence.map((id, n) => (
+                            <button
+                              key={id}
+                              onClick={() => {
+                                setOpen(false);
+                                onEvidence(id);
+                              }}
+                            >
+                              {t("Запись", "Жазба")} {n + 1}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {m.error && (
+                        <button disabled={busy} onClick={() => ask(m.question)}>
+                          <RotateCcw size={14} />
+                          {t("Повторить", "Қайталау")}
+                        </button>
+                      )}
                       {m.destination && (
                         <button onClick={() => visit(m.destination!)}>
                           {m.label}
@@ -515,6 +622,7 @@ export default function AqylCompanion({
                     </div>
                   </div>
                 ))}
+                {busy && <p className="aqyl-question">{pendingQuestion}</p>}
                 {busy && (
                   <p className="aqyl-answer">
                     {t(
@@ -536,7 +644,7 @@ export default function AqylCompanion({
                   </button>
                 ))}
               </div>
-              {data && !landing && (
+              {data && !landing && screen === "none" && (
                 <button
                   className="aqyl-show-buttons"
                   onClick={() => showStep(0)}
@@ -569,8 +677,8 @@ export default function AqylCompanion({
               <p className="aqyl-method">
                 {data?.ai.enabled
                   ? t(
-                      "В AI передаются вопрос и сводные показатели.",
-                      "AI-ге сұрақ пен жиынтық көрсеткіштер жіберіледі.",
+                      "AI получает историю разговора, сводку бизнеса и проверенные записи. Ответы могут содержать ошибки.",
+                      "AI әңгіме тарихын, бизнес шолуын және расталған жазбаларды алады. Жауапта қате болуы мүмкін.",
                     )
                   : t(
                       "Подсказки по сервису и вашим данным · без свободного AI-чата",
@@ -583,4 +691,5 @@ export default function AqylCompanion({
       )}
     </>
   );
+  return modalHost ? createPortal(content, modalHost) : content;
 }

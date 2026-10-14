@@ -56,6 +56,11 @@ import Connector from "./connector";
 import Onboarding from "./onboarding";
 import Landing from "./landing";
 import AqylCompanion from "./aqyl-companion";
+import {
+  aqylActions,
+  allowedAqylActions,
+  type AqylAction,
+} from "@/lib/aqyl-actions";
 import BusinessBrief, { GuidedAssistant } from "./business-brief";
 import { money, dayKey, Event, Task, Insight, cents } from "@/lib/types";
 const icons = [LayoutDashboard, Plug, Lightbulb, Route, BarChart3, Settings];
@@ -123,6 +128,7 @@ export default function Bagyt() {
     [loading, setLoading] = useState(true),
     [showLanding, setShowLanding] = useState(false),
     [companionOpen, setCompanionOpen] = useState(false),
+    [guideTarget, setGuideTarget] = useState<AqylAction | null>(null),
     [section, setSection] = useState("overview"),
     [days, setDays] = useState(30),
     [modal, setModal] = useState<any>(null),
@@ -172,6 +178,7 @@ export default function Bagyt() {
   }, [toast]);
   const close = useCallback(() => {
     setModal(null);
+    setGuideTarget(null);
     setError("");
     setOcr(null);
   }, []);
@@ -219,8 +226,47 @@ export default function Bagyt() {
       setCompanionOpen(true);
       return;
     }
+    setGuideTarget(
+      value.type === "manual"
+        ? "manual_kind"
+        : value.type === "import"
+          ? "upload"
+          : null,
+    );
     setModal(value);
   };
+  function guideTo(id: AqylAction) {
+    if (!data || !allowedAqylActions(data.user.role).includes(id)) return;
+    const target = aqylActions[id];
+    setShowLanding(false);
+    nav(target.section);
+    if ("modal" in target) {
+      if (modal?.type !== target.modal) open({ type: target.modal });
+    } else if (modal) close();
+    setGuideTarget(id);
+    setCompanionOpen(false);
+  }
+  useEffect(() => {
+    if (!guideTarget) return;
+    const timer = setTimeout(() => {
+      const element = document.querySelector<HTMLElement>(
+        aqylActions[guideTarget].selector,
+      );
+      element?.classList.add("aqyl-field-highlight");
+      element?.scrollIntoView({
+        block: element.matches("input,select,textarea") ? "nearest" : "center",
+        behavior: "instant",
+      });
+      if (element?.matches("input,select,textarea"))
+        element.focus({ preventScroll: true });
+    }, 100);
+    return () => {
+      clearTimeout(timer);
+      document
+        .querySelectorAll(".aqyl-field-highlight")
+        .forEach((e) => e.classList.remove("aqyl-field-highlight"));
+    };
+  }, [guideTarget, modal?.type, section]);
   const status = (s: string) =>
     (language === "ru" ? statusRu : statusKk)[s] || s;
   const kind = (s: string) => (language === "ru" ? kindNames : kindKk)[s] || s;
@@ -1286,10 +1332,10 @@ export default function Bagyt() {
                     </div>
                     <Badge color={data.ai.enabled ? "green" : "muted"}>
                       {data.ai.enabled
-                        ? "LLM enabled"
+                        ? data.ai.mode
                         : t(
-                            "Без LLM · аналитика работает",
-                            "LLM жоқ · талдау жұмыс істейді",
+                            "AI-чат не подключён · аналитика работает",
+                            "AI-чат қосылмаған · талдау жұмыс істейді",
                           )}
                     </Badge>
                   </div>
@@ -2094,6 +2140,62 @@ export default function Bagyt() {
           }
           onClose={close}
         >
+          {(modal.type === "manual" || modal.type === "import") && (
+            <>
+              <div id="aqyl-modal-host" />
+              <div className="aqyl-field-coach">
+                <Robot
+                  size={48}
+                  onClick={() => setCompanionOpen(true)}
+                  label={t("Спросить AQYL", "AQYL-дан сұрау")}
+                />
+                <div>
+                  <b>
+                    AQYL ·{" "}
+                    {guideTarget
+                      ? aqylActions[guideTarget].title[
+                          language === "ru" ? 0 : 1
+                        ]
+                      : t("Помогу заполнить", "Толтыруға көмектесемін")}
+                  </b>
+                  <p>
+                    {guideTarget
+                      ? aqylActions[guideTarget].hint[language === "ru" ? 0 : 1]
+                      : t(
+                          "Спросите, что непонятно в этой форме.",
+                          "Осы формада түсініксіз нәрсені сұраңыз.",
+                        )}
+                  </p>
+                  <button type="button" onClick={() => setCompanionOpen(true)}>
+                    {t("Задать вопрос", "Сұрақ қою")}{" "}
+                    <MessageSquare size={14} />
+                  </button>
+                  {modal.type === "manual" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const fields: AqylAction[] = [
+                          "manual_kind",
+                          "manual_date",
+                          "manual_amount",
+                          "manual_cost",
+                          "manual_name",
+                        ];
+                        guideTo(
+                          fields[
+                            (fields.indexOf(guideTarget!) + 1) % fields.length
+                          ],
+                        );
+                      }}
+                    >
+                      {t("Следующее поле", "Келесі өріс")}{" "}
+                      <ArrowRight size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
           {error && (
             <div className="form-error" role="alert">
               {error}
@@ -2350,7 +2452,10 @@ export default function Bagyt() {
                 <div className="form-grid">
                   <label>
                     {t("Тип операции", "Операция түрі")}
-                    <select name="kind">
+                    <select name="kind" defaultValue="" required>
+                      <option value="" disabled>
+                        {t("Выберите тип", "Түрін таңдаңыз")}
+                      </option>
                       <option value="expense">{t("Расход", "Шығыс")}</option>
                       <option value="sale">{t("Продажа", "Сату")}</option>
                       <option value="refund">{t("Возврат", "Қайтару")}</option>
@@ -2987,8 +3092,24 @@ export default function Bagyt() {
         language={language}
         data={data}
         section={section}
+        days={days}
+        screen={
+          modal?.type === "manual" ||
+          modal?.type === "import" ||
+          modal?.type === "connector"
+            ? modal.type
+            : "none"
+        }
+        focusedField={guideTarget || undefined}
+        onGuide={guideTo}
+        onEvidence={(id) => {
+          const record = data?.events.find((e: Event) => e.id === id);
+          if (record) open({ type: "record", event: record });
+        }}
         landing={!data || showLanding}
-        suspended={!!modal || mobile}
+        suspended={
+          (!!modal && !["manual", "import"].includes(modal.type)) || mobile
+        }
         open={companionOpen}
         setOpen={setCompanionOpen}
         onNavigate={(key) => {
