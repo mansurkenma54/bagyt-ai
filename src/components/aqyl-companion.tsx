@@ -23,6 +23,7 @@ import {
   GuideLanguage,
 } from "@/lib/aqyl-guide";
 type Props = {
+  suppressTip?: boolean;
   draft?: { text: string; id: number } | null;
   language: GuideLanguage;
   data: {
@@ -65,6 +66,7 @@ function save(key: string, value: string) {
   }
 }
 export default function AqylCompanion({
+  suppressTip = false,
   draft,
   language,
   data,
@@ -374,7 +376,7 @@ export default function AqylCompanion({
             : undefined
         }
       >
-        {!open && tip && (
+        {!open && tip && !suppressTip && (
           <button className="aqyl-prompt" onClick={() => setOpen(true)}>
             {landing
               ? t("Я рядом. Спросите меня!", "Мен қасыңыздамын. Сұраңыз!")

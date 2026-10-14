@@ -3115,6 +3115,7 @@ export default function Bagyt() {
         }}
       />
       <AqylCompanion
+        suppressTip={dailyActive}
         draft={assistantDraft}
         language={language}
         data={data}
