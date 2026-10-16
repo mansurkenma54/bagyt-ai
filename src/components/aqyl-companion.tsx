@@ -8,13 +8,24 @@ import {
   ArrowRight,
   BookOpen,
   Grip,
+  LockKeyhole,
   MessageCircle,
+  PanelRightClose,
+  PanelRightOpen,
   Pause,
   Play,
   Send,
   X,
 } from "lucide-react";
 import { api, Robot } from "./ui";
+import {
+  AGENT_ID_KEY,
+  AGENT_PLAN_KEY,
+  agentTeam,
+  availableAgent,
+  type AgentId,
+  type AgentPlan,
+} from "@/lib/agent-team";
 import {
   answerGuide,
   guideSteps,
@@ -92,6 +103,17 @@ export default function AqylCompanion({
     [welcome, setWelcome] = useState(false),
     [step, setStep] = useState<number | null>(null),
     [tip, setTip] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+  const [plan, setPlan] = useState<AgentPlan>("free");
+  const [agentId, setAgentId] = useState<AgentId>("belgi");
+  const [showPlans, setShowPlans] = useState(false);
+  const [tipIndex, setTipIndex] = useState(0);
+  const conversations = useRef<Record<AgentId, Message[]>>({
+    belgi: [],
+    sana: [],
+    qor: [],
+  });
+  const agent = agentTeam.find((item) => item.id === agentId)!;
   const [position, setPosition] = useState<{ x: number; y: number } | null>(
     null,
   );
@@ -137,7 +159,20 @@ export default function AqylCompanion({
   }, [draft]);
   useEffect(() => {
     setPaused(saved("bagyt-aqyl-paused") === "true");
+    const nextPlan = saved(AGENT_PLAN_KEY) === "pro" ? "pro" : "free";
+    setPlan(nextPlan);
+    setAgentId(availableAgent(saved(AGENT_ID_KEY), nextPlan));
   }, []);
+  useEffect(() => {
+    if (open && expanded && !suspended && !landing && screen === "none") {
+      document.body.dataset.appAgentPanel = "open";
+    } else {
+      delete document.body.dataset.appAgentPanel;
+    }
+    return () => {
+      delete document.body.dataset.appAgentPanel;
+    };
+  }, [open, expanded, suspended, landing, screen]);
   useEffect(() => {
     document.documentElement.dataset.aqylMotion = paused ? "paused" : "active";
     return () => {
@@ -146,9 +181,24 @@ export default function AqylCompanion({
   }, [paused]);
   useEffect(() => {
     setTip(true);
+    setTipIndex(0);
     const timer = setTimeout(() => setTip(false), 12000);
+    const interval = setInterval(() => {
+      if (!paused && !open) {
+        setTipIndex((index) => index + 1);
+        setTip(true);
+      }
+    }, 28000);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
+  }, [section, landing, paused, open]);
+  useEffect(() => {
+    if (tipIndex === 0) return;
+    const timer = setTimeout(() => setTip(false), 9000);
     return () => clearTimeout(timer);
-  }, [section, landing]);
+  }, [tipIndex]);
   useEffect(() => {
     request.current++;
     setMessages([]);
@@ -157,11 +207,11 @@ export default function AqylCompanion({
     setInput("");
     setStep(null);
     setWelcome(false);
+    conversations.current = { belgi: [], sana: [], qor: [] };
   }, [identity]);
   useEffect(() => {
     if (data && !landing && !suspended && !saved(seenKey)) {
       setWelcome(true);
-      setOpen(true);
     }
   }, [data?.org.id, landing, suspended, seenKey, setOpen]);
   useEffect(() => {
@@ -222,6 +272,34 @@ export default function AqylCompanion({
     setTip(false);
     trigger.current?.querySelector<HTMLButtonElement>(".robot")?.focus();
   };
+  function selectAgent(nextId: AgentId) {
+    if (busy) return;
+    if (plan === "free" && nextId !== "belgi") {
+      setShowPlans(true);
+      return;
+    }
+    conversations.current[agentId] = messages;
+    setMessages(conversations.current[nextId]);
+    setAgentId(nextId);
+    setStep(null);
+    setWelcome(false);
+    setInput("");
+    save(AGENT_ID_KEY, nextId);
+    window.dispatchEvent(new Event("bagyt-agents-change"));
+  }
+  function changePlan(nextPlan: AgentPlan) {
+    if (busy) return;
+    setPlan(nextPlan);
+    save(AGENT_PLAN_KEY, nextPlan);
+    if (nextPlan === "free") {
+      conversations.current[agentId] = messages;
+      setMessages(conversations.current.belgi);
+      setAgentId("belgi");
+      save(AGENT_ID_KEY, "belgi");
+    }
+    setShowPlans(false);
+    window.dispatchEvent(new Event("bagyt-agents-change"));
+  }
   function visit(s: string) {
     setOpen(false);
     setStep(null);
@@ -259,6 +337,7 @@ export default function AqylCompanion({
           history.splice(0, 2);
         const result = await api("aqyl", {
           question: q,
+          agent: agentId,
           language,
           days,
           section: landing ? "landing" : section,
@@ -303,7 +382,16 @@ export default function AqylCompanion({
     } else {
       const local = answerGuide(q, language, data?.analytics);
       if (local) {
-        setMessages((m) => [...m, { question: q, ...local }].slice(-24));
+        setMessages((m) =>
+          [
+            ...m,
+            {
+              question: q,
+              ...local,
+              text: local.text.replace(/BELGI AI/g, agent.name),
+            },
+          ].slice(-24),
+        );
         return;
       }
       setMessages((m) =>
@@ -346,6 +434,37 @@ export default function AqylCompanion({
                 "Как идут дела? Помогу найти следующий шаг.",
                 "Кәсібіңіз қалай? Келесі қадамды табуға көмектесемін.",
               );
+  const shortTip =
+    tipIndex % 3 === 1
+      ? agent.greeting[language]
+      : tipIndex % 3 === 2
+        ? t(
+            "Одно дело за раз. У вас получится.",
+            "Бір қадамнан бастайық. Қолыңыздан келеді.",
+          )
+        : section === "connect"
+          ? t("Добавим данные вместе?", "Деректерді бірге қосайық па?")
+          : section === "growth"
+            ? t("Выберем следующий шаг?", "Келесі қадамды таңдайық па?")
+            : t("Я рядом. Спросите меня!", "Мен қасыңыздамын. Сұраңыз!");
+  const quickReplies =
+    agentId === "sana"
+      ? [
+          t("Как работать с клиентами?", "Клиенттермен қалай жұмыс істеймін?"),
+          t("Как добавить данные?", "Деректерді қалай қосамын?"),
+          t("Что делать дальше?", "Не істеу керек?"),
+        ]
+      : agentId === "qor"
+        ? [
+            t("Как проверить запасы?", "Қорды қалай тексеремін?"),
+            t("Что с расходами?", "Шығындар қалай?"),
+            t("Как добавить данные?", "Деректерді қалай қосамын?"),
+          ]
+        : [
+            t("С чего начать?", "Неден бастау керек?"),
+            t("Что с продажами?", "Сату қалай?"),
+            t("Что делать дальше?", "Не істеу керек?"),
+          ];
   if (suspended || ((screen === "manual" || screen === "import") && !modalHost))
     return null;
   const content = (
@@ -363,7 +482,7 @@ export default function AqylCompanion({
         />
       )}
       <div
-        className={`aqyl-dock ${paused ? "is-paused" : ""} ${open ? "is-talking" : ""}`}
+        className={`aqyl-dock aqyl-orb ${landing ? "on-brand-page" : ""} ${paused ? "is-paused" : ""} ${open ? "is-talking" : ""} ${!paused && !open && !position ? "is-roaming" : ""}`}
         ref={dock}
         style={
           position
@@ -377,31 +496,54 @@ export default function AqylCompanion({
         }
       >
         {!open && tip && !suppressTip && (
-          <button className="aqyl-prompt" onClick={() => setOpen(true)}>
-            {landing
-              ? t("Я рядом. Спросите меня!", "Мен қасыңыздамын. Сұраңыз!")
-              : contextual}
+          <button
+            className="aqyl-prompt"
+            style={
+              position
+                ? {
+                    ...(position.x < 220 ? { left: 0, right: "auto" } : {}),
+                    ...(position.y < 155 ? { top: 138, bottom: "auto" } : {}),
+                  }
+                : undefined
+            }
+            onClick={() => setOpen(true)}
+          >
+            {shortTip}
             <MessageCircle size={14} />
           </button>
         )}
         <div ref={trigger} className="aqyl-flyer">
           <Robot
-            size={100}
-            state={busy ? "thinking" : open ? "success" : "greeting"}
+            size={128}
+            variant={agentId}
+            state={
+              busy
+                ? "thinking"
+                : open
+                  ? "happy"
+                  : tip
+                    ? "talking"
+                    : tipIndex % 2
+                      ? "curious"
+                      : "greeting"
+            }
             onClick={() => (open ? hide() : setOpen(true))}
             label={
               open
-                ? t("Свернуть AQYL", "AQYL-ды жинау")
-                : t("Открыть помощника AQYL", "AQYL көмекшісін ашу")
+                ? t(`Свернуть ${agent.name}`, `${agent.name} терезесін жинау`)
+                : t(
+                    `Открыть помощника ${agent.name}`,
+                    `${agent.name} көмекшісін ашу`,
+                  )
             }
           />
         </div>
         <div className="aqyl-dock-caption">
-          <span>AQYL</span>
+          <span>{agent.name}</span>
           <button
             aria-label={t(
-              "Переместить AQYL: перетащите или используйте стрелки",
-              "AQYL-ды жылжыту: сүйреңіз немесе бағыттауыштарды қолданыңыз",
+              "Переместить помощника: перетащите или используйте стрелки",
+              "Көмекшіні жылжыту: сүйреңіз немесе бағыттауыштарды қолданыңыз",
             )}
             title={t("Перетащите меня", "Мені жылжытыңыз")}
             onPointerDown={(e) => {
@@ -451,10 +593,13 @@ export default function AqylCompanion({
       </div>
       {open && (
         <section
-          className="aqyl-window"
+          className={`aqyl-window aqyl-agent-chat ${expanded ? "is-expanded" : ""} ${showPlans ? "is-choosing-plan" : ""}`}
           role="dialog"
           aria-modal="false"
-          aria-label={t("Разговор с AQYL", "AQYL-мен әңгіме")}
+          aria-label={t(
+            `Разговор с ${agent.name}`,
+            `${agent.name} көмекшісімен әңгіме`,
+          )}
           tabIndex={-1}
           ref={panel}
           onKeyDown={(e) => {
@@ -465,18 +610,20 @@ export default function AqylCompanion({
           }}
         >
           <header>
-            <div>
-              <span className="aqyl-live-dot" />
-              <b>AQYL</b>
-              <small>
-                {busy
-                  ? t("Думаю…", "Ойланып тұрмын…")
-                  : data?.org.demo
-                    ? t("Демо-данные", "Демо-деректер")
-                    : data?.ai.enabled
-                      ? "Gemini · AI"
-                      : t("Я рядом", "Мен қасыңыздамын")}
-              </small>
+            <div className="aqyl-agent-heading">
+              <Robot
+                size={42}
+                variant={agentId}
+                state={busy ? "thinking" : "greeting"}
+              />
+              <div>
+                <b>
+                  {agent.name} <span className="aqyl-live-dot" />
+                </b>
+                <small>
+                  {busy ? t("Думаю…", "Ойланып тұрмын…") : agent.role[language]}
+                </small>
+              </div>
             </div>
             <div>
               <button
@@ -494,8 +641,14 @@ export default function AqylCompanion({
                 className="icon-button"
                 aria-label={
                   paused
-                    ? t("Включить движение AQYL", "AQYL қозғалысын қосу")
-                    : t("Остановить движение AQYL", "AQYL қозғалысын тоқтату")
+                    ? t(
+                        "Включить движение помощника",
+                        "Көмекшінің қозғалысын қосу",
+                      )
+                    : t(
+                        "Остановить движение помощника",
+                        "Көмекшінің қозғалысын тоқтату",
+                      )
                 }
                 onClick={() => {
                   setPaused(!paused);
@@ -504,15 +657,84 @@ export default function AqylCompanion({
               >
                 {paused ? <Play size={16} /> : <Pause size={16} />}
               </button>
+              {screen === "none" && (
+                <button
+                  className="icon-button aqyl-expand"
+                  aria-label={
+                    expanded
+                      ? t("Вернуть мини-окно", "Шағын терезеге қайту")
+                      : t("Открыть справа", "Оң жақ панельде ашу")
+                  }
+                  aria-pressed={expanded}
+                  onClick={() => setExpanded(!expanded)}
+                >
+                  {expanded ? (
+                    <PanelRightClose size={17} />
+                  ) : (
+                    <PanelRightOpen size={17} />
+                  )}
+                </button>
+              )}
               <button
                 className="icon-button"
-                aria-label={t("Свернуть окно AQYL", "AQYL терезесін жинау")}
+                aria-label={t(
+                  "Свернуть окно помощника",
+                  "Көмекші терезесін жинау",
+                )}
                 onClick={hide}
               >
                 <X size={18} />
               </button>
             </div>
           </header>
+          <div
+            className="aqyl-agent-team"
+            aria-label={t("Выбрать помощника", "Көмекшіні таңдау")}
+          >
+            {agentTeam.map((member) => (
+              <button
+                key={member.id}
+                className={member.id === agentId ? "active" : ""}
+                aria-pressed={member.id === agentId}
+                title={member.role[language]}
+                disabled={busy}
+                onClick={() => selectAgent(member.id)}
+              >
+                <span className={`aqyl-agent-color ${member.id}`} />
+                {member.name}
+                {plan === "free" && member.id !== "belgi" && (
+                  <LockKeyhole size={11} />
+                )}
+              </button>
+            ))}
+            <button
+              className="aqyl-plan-control"
+              onClick={() => setShowPlans(!showPlans)}
+              aria-expanded={showPlans}
+            >
+              {plan === "pro" ? "Pro · demo" : "Free"}
+            </button>
+          </div>
+          {showPlans && (
+            <div className="aqyl-plan-preview">
+              <b>{t("Ваша команда помощников", "Көмекшілер командаңыз")}</b>
+              <p>
+                {t(
+                  "Free — универсальный Belgi. Pro — Belgi, Sana для клиентов и Qor для запасов. Сейчас можно попробовать переключение в демо, без оплаты.",
+                  "Free — әмбебап Belgi. Pro — Belgi, клиенттерге арналған Sana және қоймаға арналған Qor. Әзірге ауыстырып көру демо ретінде қолжетімді, төлем алынбайды.",
+                )}
+              </p>
+              <button
+                disabled={busy}
+                onClick={() => changePlan(plan === "pro" ? "free" : "pro")}
+              >
+                {plan === "pro"
+                  ? t("Вернуться к Free", "Free нұсқасына қайту")
+                  : t("Попробовать 3 помощников", "3 көмекшіні байқап көру")}
+                <ArrowRight size={15} />
+              </button>
+            </div>
+          )}
           {current ? (
             <div className="aqyl-tour-body" aria-live="polite">
               <span className="aqyl-tour-count">
@@ -563,10 +785,12 @@ export default function AqylCompanion({
                 <p className="aqyl-answer">
                   {welcome
                     ? t(
-                        "Сәлем! Аккаунт готов. Я AQYL, ваш помощник. Давайте покажу основные кнопки — а потом начнём работать?",
-                        "Сәлем! Аккаунт дайын. Мен AQYL — көмекшіңізбін. Негізгі батырмаларды көрсетейін, содан кейін жұмысқа кірісеміз бе?",
+                        "Сәлем! Аккаунт готов. Я BELGI AI, ваш помощник. Давайте покажу основные кнопки — а потом начнём работать?",
+                        "Сәлем! Аккаунт дайын. Мен BELGI AI — көмекшіңізбін. Негізгі батырмаларды көрсетейін, содан кейін жұмысқа кірісеміз бе?",
                       )
-                    : contextual}
+                    : agentId === "belgi"
+                      ? contextual
+                      : `${agent.greeting[language]} ${t("Моя область —", "Менің бағытым —")} ${agent.role[language].toLowerCase()}.`}
                 </p>
                 {welcome && (
                   <div className="aqyl-welcome-actions">
@@ -645,11 +869,7 @@ export default function AqylCompanion({
                 <div ref={end} />
               </div>
               <div className="aqyl-quick-replies">
-                {[
-                  t("С чего начать?", "Неден бастау керек?"),
-                  t("Что с продажами?", "Сату қалай?"),
-                  t("Что делать дальше?", "Не істеу керек?"),
-                ].map((q) => (
+                {quickReplies.map((q) => (
                   <button key={q} disabled={busy} onClick={() => ask(q)}>
                     {q}
                   </button>
@@ -672,7 +892,10 @@ export default function AqylCompanion({
                 }}
               >
                 <input
-                  aria-label={t("Вопрос AQYL", "AQYL-ға сұрақ")}
+                  aria-label={t(
+                    `Вопрос ${agent.name}`,
+                    `${agent.name} көмекшісіне сұрақ`,
+                  )}
                   placeholder={t("Напишите вопрос…", "Сұрағыңызды жазыңыз…")}
                   maxLength={1500}
                   value={input}

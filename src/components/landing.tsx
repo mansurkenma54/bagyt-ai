@@ -1,19 +1,15 @@
 "use client";
-import {
-  ArrowRight,
-  MessageCircle,
-  FileSpreadsheet,
-  Check,
-  Heart,
-  MousePointer2,
-} from "lucide-react";
-import { Logo, Robot } from "./ui";
+import Image from "next/image";
+import { ArrowRight, ArrowUpRight, Check, Code2, Palette } from "lucide-react";
+import { Logo } from "./ui";
+import ThemeToggle from "./theme-toggle";
+import LandingStory from "./landing-story";
+
 export default function Landing({
   language,
   onLanguage,
   onRegister,
   onLogin,
-  onAssistant,
   hasAccount = false,
 }: {
   language: "ru" | "kk";
@@ -23,155 +19,233 @@ export default function Landing({
   onAssistant: () => void;
   hasAccount?: boolean;
 }) {
-  const t = (r: string, k: string) => (language === "ru" ? r : k);
+  const t = (ru: string, kk: string) => (language === "ru" ? ru : kk);
   return (
-    <div className="hello-page">
-      <header className="hello-header">
-        <Logo />
-        <div>
-          <button className="lang" onClick={onLanguage}>
-            {language === "ru" ? "Қазақша" : "Русский"}
+    <div className="bagyt-landing">
+      <a className="bl-skip" href="#platform">
+        {t("Перейти к возможностям", "Мүмкіндіктерге өту")}
+      </a>
+      <header className="bl-header">
+        <a href="#bagyt-intro" className="bl-brand-link" aria-label="Bagyt">
+          <Logo />
+        </a>
+        <nav aria-label={t("Разделы сайта", "Сайт бөлімдері")}>
+          <a href="#platform">{t("Возможности", "Мүмкіндіктер")}</a>
+          <a href="#agents">{t("Команда", "Команда")}</a>
+          <a href="#plans">{t("Планы", "Жоспарлар")}</a>
+        </nav>
+        <div className="bl-header-actions">
+          <ThemeToggle />
+          <button
+            className="bl-language"
+            onClick={onLanguage}
+            aria-label={t("Қазақ тіліне ауыстыру", "Переключить на русский")}
+          >
+            {language === "kk" ? "KZ" : "RU"}
           </button>
-          <button className="hello-login" onClick={onLogin}>
+          <button className="bl-login" onClick={onLogin}>
             {hasAccount ? t("Мой бизнес", "Бизнесім") : t("Войти", "Кіру")}
-            <ArrowRight size={17} />
           </button>
+          <a className="bl-header-open" href="/demo">
+            {t("Открыть Bagyt", "Bagyt ашу")}
+            <ArrowUpRight size={15} />
+          </a>
         </div>
       </header>
-      <main>
-        <section className="hello-hero">
-          <div className="hello-copy">
-            <span className="hello-eyebrow">
-              <span />{" "}
-              {t("ВАШ БИЗНЕС. ВАШ ПОМОЩНИК.", "СІЗДІҢ БИЗНЕС. СІЗДІҢ КӨМЕКШІ.")}
-            </span>
-            <h1>
-              {t("Сәлем, я AQYL.", "Сәлем, мен AQYL.")}
-              <br />
-              <span>{t("Давайте вместе?", "Бірге бастайық?")}</span>
-            </h1>
+      <main id="bagyt">
+        <LandingStory language={language} />
+        <section className="bl-plans" id="plans" aria-labelledby="plans-title">
+          <div className="bl-plans-intro">
+            <span className="bl-eyebrow">BIRGE ÓSEYIK</span>
+            <h2 id="plans-title">{t("В своём темпе.", "Өз қарқыныңызбен.")}</h2>
             <p>
               {t(
-                "Помогу понять, как идут дела, что требует внимания и что делать дальше. Покажу всё по шагам.",
-                "Кәсібіңіздің жағдайын түсініп, маңыздысын анықтауға және келесі қадамды таңдауға көмектесемін. Бәрін ретімен көрсетемін.",
+                "Начните с Belgi. Когда задач станет больше — подключите команду.",
+                "Belgi-ден бастаңыз. Іс көбейгенде — команда қосыңыз.",
               )}
             </p>
-            <button
-              className="hello-start"
-              onClick={() => (hasAccount ? onLogin() : onRegister())}
-            >
-              {hasAccount
-                ? t("Продолжить с AQYL", "AQYL-мен жалғастыру")
-                : t("Начать с AQYL", "AQYL-мен бастау")}
-              <ArrowRight size={20} />
-            </button>
-            <span className="hello-note">
-              {t(
-                "Три простых шага — и ваш бизнес здесь.",
-                "Үш қарапайым қадам — бизнесіңіз осында.",
-              )}
-            </span>
           </div>
-          <div className="hello-scene">
-            <div className="hello-orbit orbit-one" />
-            <div className="hello-orbit orbit-two" />
-            <span className="hello-star star-one">✦</span>
-            <span className="hello-star star-two">+</span>
-            <div className="hello-speech">
-              <Heart size={16} />
-              {t(
-                "Не знаете, с чего начать? Я рядом.",
-                "Неден бастарыңызды білмейсіз бе? Мен қасыңыздамын.",
-              )}
-            </div>
-            <div className="hello-character">
-              <Robot
-                size={290}
-                onClick={onAssistant}
-                label={t("Поговорить с AQYL", "AQYL-мен сөйлесу")}
-              />
-            </div>
-            <button className="hello-touch" onClick={onAssistant}>
-              <MousePointer2 size={17} />
-              {t("Нажмите на меня. Поговорим?", "Мені басыңыз. Сөйлесейік?")}
-            </button>
-            <span className="hello-satellite satellite-data">
-              <FileSpreadsheet size={17} />
-              {t("Ваши данные", "Деректеріңіз")}
-            </span>
-            <span className="hello-satellite satellite-step">
-              <Check size={17} />
-              {t("Понятный шаг", "Түсінікті қадам")}
-            </span>
+          <div className="bl-plan-grid">
+            <article className="bl-plan">
+              <div className="bl-plan-heading">
+                <span>Free</span>
+                <small>{t("Один помощник", "Бір көмекші")}</small>
+              </div>
+              <h3>
+                Belgi<span>.</span>
+              </h3>
+              <p>
+                {t(
+                  "Общая картина бизнеса и понятный следующий шаг.",
+                  "Бизнестің жалпы көрінісі және түсінікті келесі қадам.",
+                )}
+              </p>
+              <ul>
+                <li>
+                  <Check size={16} />
+                  {t(
+                    "Показатели и план на день",
+                    "Көрсеткіштер мен күндік жоспар",
+                  )}
+                </li>
+                <li>
+                  <Check size={16} />
+                  {t("Подсказки в нужном разделе", "Керек бөлімдегі кеңестер")}
+                </li>
+                <li>
+                  <Check size={16} />
+                  {t("Мини-чат рядом с работой", "Жұмыс жанындағы шағын чат")}
+                </li>
+              </ul>
+              <a className="bl-plan-link" href="/demo?plan=free">
+                {t("Начать с одного", "Бір көмекшіден бастау")}
+                <ArrowRight size={17} />
+              </a>
+            </article>
+            <article className="bl-plan bl-plan-pro">
+              <div className="bl-plan-heading">
+                <span>Pro</span>
+                <small>
+                  {t("Три роли, одна команда", "Үш рөл, бір команда")}
+                </small>
+              </div>
+              <h3>
+                Belgi. Sana. Qor<span>.</span>
+              </h3>
+              <p>
+                {t(
+                  "Каждый берёт своё: направление, клиенты, товары.",
+                  "Әрқайсысының өз ісі: бағыт, клиенттер, тауарлар.",
+                )}
+              </p>
+              <ul>
+                <li>
+                  <Check size={16} />
+                  {t(
+                    "Sana — диалоги и отзывы",
+                    "Sana — диалогтар мен пікірлер",
+                  )}
+                </li>
+                <li>
+                  <Check size={16} />
+                  {t(
+                    "Qor — остатки и закупки",
+                    "Qor — қалдықтар мен сатып алу",
+                  )}
+                </li>
+                <li>
+                  <Check size={16} />
+                  {t("Смена помощника под задачу", "Тапсырмаға сай көмекші")}
+                </li>
+              </ul>
+              <a className="bl-plan-link" href="/demo?plan=pro">
+                {t("Попробовать команду", "Команданы байқап көру")}
+                <ArrowRight size={17} />
+              </a>
+            </article>
           </div>
-        </section>
-        <section
-          className="hello-route"
-          aria-label={t("Как начать", "Қалай бастауға болады")}
-        >
-          <div className="hello-route-intro">
-            <span>BAGYT + AQYL</span>
-            <h2>
-              {t(
-                "Сложное — разберём. Начнём с простого.",
-                "Күрделісін түсінеміз. Қарапайымнан бастаймыз.",
-              )}
-            </h2>
-          </div>
-          <ol>
-            {[
-              [
-                t("Познакомимся", "Танысамыз"),
-                t(
-                  "Какой у вас бизнес и что хотите улучшить?",
-                  "Қандай бизнесіңіз бар, нені жақсартқыңыз келеді?",
-                ),
-              ],
-              [
-                t("Добавим данные", "Деректерді қосамыз"),
-                t(
-                  "Загрузите таблицу или чек. Я покажу, где и как.",
-                  "Кесте немесе чек жүктеңіз. Қайда, қалай екенін көрсетемін.",
-                ),
-              ],
-              [
-                t("Выберем действие", "Әрекетті таңдаймыз"),
-                t(
-                  "Посмотрим на цифры и решим, с чего начать.",
-                  "Сандарды қарап, неден бастау керегін анықтаймыз.",
-                ),
-              ],
-            ].map(([title, desc], i) => (
-              <li key={title}>
-                <span>0{i + 1}</span>
-                <div>
-                  <h3>{title}</h3>
-                  <p>{desc}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
-        <div className="hello-question">
-          <MessageCircle size={22} />
-          <p>
-            <b>{t("Можно просто спросить.", "Жай ғана сұрауға болады.")}</b>{" "}
+          <p className="bl-example-note">
             {t(
-              "AQYL остаётся рядом на каждом экране.",
-              "AQYL әр бетте қасыңызда болады.",
+              "Можно попробовать оба режима без оплаты. В примере используются учебные данные; внешние сообщения и заказы не отправляются.",
+              "Екі режимді де төлемсіз көріңіз. Мысалда оқу деректері қолданылады; сыртқа хабарламалар мен тапсырыстар жіберілмейді.",
             )}
           </p>
-          <button onClick={onAssistant}>
-            {t("Спросить AQYL", "AQYL-дан сұрау")}
-            <ArrowRight size={16} />
-          </button>
-        </div>
+        </section>
+        <section className="bl-team" aria-labelledby="team-title">
+          <div className="bl-team-intro">
+            <span className="bl-eyebrow">BAGYT TEAM · QAZAQSTAN</span>
+            <h2 id="team-title">{t("Авторы проекта", "Жоба авторлары")}</h2>
+            <p>
+              {t(
+                "Концепция, дизайн и технология BAGYT AI созданы нашей командой.",
+                "BAGYT AI тұжырымдамасын, дизайнын және технологиясын біздің команда жасады.",
+              )}
+            </p>
+          </div>
+          <div className="bl-team-grid">
+            <article>
+              <div className="bl-team-photo">
+                <Image
+                  src="/team/karakat.png"
+                  alt="Ақбаева Қарақат"
+                  fill
+                  sizes="(max-width: 640px) 112px, 136px"
+                />
+                <span className="bl-team-role-icon" aria-hidden="true">
+                  <Palette size={17} />
+                </span>
+              </div>
+              <div className="bl-team-person">
+                <span>01 · UI/UX</span>
+                <h3>Ақбаева Қарақат</h3>
+                <p>
+                  {t(
+                    "Дизайн и пользовательский опыт",
+                    "Дизайн және пайдаланушы тәжірибесі",
+                  )}
+                </p>
+              </div>
+            </article>
+            <article>
+              <div className="bl-team-photo bl-team-photo-dev">
+                <Image
+                  src="/team/abilmansur.png"
+                  alt="Арыстанбай Әбілмансұр"
+                  fill
+                  sizes="(max-width: 640px) 112px, 136px"
+                />
+                <span className="bl-team-role-icon" aria-hidden="true">
+                  <Code2 size={17} />
+                </span>
+              </div>
+              <div className="bl-team-person">
+                <span>02 · FULL-STACK &amp; AI</span>
+                <h3>Арыстанбай Әбілмансұр</h3>
+                <p>
+                  {t(
+                    "Разработка продукта и AI",
+                    "Өнімді және AI жүйесін әзірлеу",
+                  )}
+                </p>
+              </div>
+            </article>
+          </div>
+          <p className="bl-rights">
+            © 2026 BAGYT AI ·{" "}
+            {t("Все права защищены", "Барлық құқықтар қорғалған")}
+          </p>
+        </section>
+        <section className="bl-final">
+          <span className="bl-eyebrow">BAGYT · BIZNESKE ANYQ BAǴYT</span>
+          <h2>
+            {t("Хорошие решения.", "Жақсы шешімдер.")}
+            <br />
+            <span>{t("Каждый день.", "Күн сайын.")}</span>
+          </h2>
+          <div className="bl-final-actions">
+            <a className="bl-start" href="/demo">
+              {t("Зайти в пространство", "Жұмыс кеңістігін ашу")}
+              <ArrowRight size={18} />
+            </a>
+            <button onClick={() => (hasAccount ? onLogin() : onRegister())}>
+              {hasAccount
+                ? t("Мой бизнес", "Бизнесім")
+                : t("Создать аккаунт", "Аккаунт құру")}
+              <ArrowUpRight size={16} />
+            </button>
+          </div>
+        </section>
       </main>
-      <footer className="hello-footer">
+      <footer className="bl-footer">
+        <Logo />
         <span>
-          BAGYT AI · {t("С заботой о вашем деле", "Кәсібіңізге қамқор")}
+          © 2026 BAGYT AI · Qazaqstanda jasalǵan ·{" "}
+          {t("С заботой о вашем деле", "Ісіңізге қамқорлықпен")}
         </span>
-        <span>Қазақстан · RU / KZ</span>
+        <a href="#bagyt-intro">
+          {t("Наверх", "Жоғарыға")}
+          <ArrowUpRight size={15} />
+        </a>
       </footer>
     </div>
   );

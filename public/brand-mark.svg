@@ -1,1 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#06251a"/><path fill="#21e89b" fill-rule="evenodd" d="M16 11h23v5h8v13h-5v5h5v14h-8v5H16V11zm9 9v9h12v-9H25zm0 17v8h12v-8H25z"/><path d="M36 5h18v18h-5V14L38 25l-4-4 11-11h-9V5z" fill="#c5ffe6"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <title>Bagyt</title>
+  <style>.bagyt-symbol{fill:#151816}@media(prefers-color-scheme:dark){.bagyt-symbol{fill:#f5f7f5}}</style>
+  <g class="bagyt-symbol" transform="translate(6 4) scale(.32)">
+    <path d="M0 0H62C95 0 116 24 116 53C116 66 111 77 102 84H117C143 84 160 102 160 125C160 154 139 174 107 174H0L48 142H81C98 142 109 133 109 120C109 107 98 98 81 98H72L48 76H61C74 76 81 68 81 58C81 47 74 39 61 39H0V0Z"/>
+    <path d="M0 59L72 110L0 161V59Z"/>
+  </g>
+</svg>

@@ -42,7 +42,7 @@ export default function BusinessBrief({
         <div className="welcome-message">
           <span className="note-label">
             <Heart size={15} />{" "}
-            {t("AQYL · С ЗАБОТОЙ О ВАШЕМ ДЕЛЕ", "AQYL · КӘСІБІҢІЗГЕ ҚАМҚОР")}
+            {t("BELGI AI · С ЗАБОТОЙ О ВАШЕМ ДЕЛЕ", "BELGI AI · КӘСІБІҢІЗГЕ ҚАМҚОР")}
           </span>
           <h2>
             {ready
@@ -81,7 +81,7 @@ export default function BusinessBrief({
             size={210}
             state={ready ? "greeting" : "curious"}
             onClick={onChat}
-            label={t("Поговорить с AQYL", "AQYL-мен сөйлесу")}
+            label={t("Поговорить с BELGI AI", "BELGI AI-мен сөйлесу")}
           />
           <span className="companion-speech">
             {t("Сәлем! Я рядом.", "Сәлем! Мен қасыңдамын.")}
@@ -140,7 +140,7 @@ export default function BusinessBrief({
           </span>
           <h3>
             {!ready
-              ? t("Дадим AQYL первые цифры", "AQYL-ға алғашқы сандарды берейік")
+              ? t("Дадим BELGI AI первые цифры", "BELGI AI-ға алғашқы сандарды берейік")
               : a.coverage.pending
                 ? t("Проверим новые записи", "Жаңа жазбаларды тексерейік")
                 : first
@@ -230,8 +230,8 @@ export default function BusinessBrief({
           </h3>
           <p>
             {t(
-              "AQYL предложит действия. Вы решаете, что делать, кому поручить и когда проверить результат.",
-              "AQYL әрекеттерді ұсынады. Не істеу, кімге тапсыру және нәтижені қашан тексеру — өз шешіміңіз.",
+              "BELGI AI предложит действия. Вы решаете, что делать, кому поручить и когда проверить результат.",
+              "BELGI AI әрекеттерді ұсынады. Не істеу, кімге тапсыру және нәтижені қашан тексеру — өз шешіміңіз.",
             )}
           </p>
           <button className="text-button" onClick={() => onNavigate("growth")}>

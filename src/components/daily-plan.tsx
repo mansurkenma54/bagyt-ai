@@ -186,7 +186,7 @@ export default function DailyPlanView({
           <Robot size={62} state={busy ? "thinking" : "greeting"} />
           <div>
             <span className="note-label">
-              AQYL · {t("ОДИН ДЕНЬ — ЯСНЫЕ ШАГИ", "БІР КҮН — НАҚТЫ ҚАДАМДАР")}
+              BELGI AI · {t("ОДИН ДЕНЬ — ЯСНЫЕ ШАГИ", "БІР КҮН — НАҚТЫ ҚАДАМДАР")}
             </span>
             <h2>{t("Что сделать сегодня", "Бүгін не істеу керек")}</h2>
           </div>
@@ -338,11 +338,11 @@ export default function DailyPlanView({
     step && guide && !chatOpen && (!modal || formOpen) ? (
       <aside
         className={`daily-coach ${formOpen ? "in-form" : ""} ${folded ? "is-folded" : ""}`}
-        aria-label={t("AQYL ведёт по шагам", "AQYL қадаммен жетелейді")}
+        aria-label={t("BELGI AI ведёт по шагам", "BELGI AI қадаммен жетелейді")}
       >
         <header>
           <b>
-            AQYL · {t("Шаг", "Қадам")} {guideIndex + 1}/{step.guides.length}
+            BELGI AI · {t("Шаг", "Қадам")} {guideIndex + 1}/{step.guides.length}
           </b>
           <div>
             <button

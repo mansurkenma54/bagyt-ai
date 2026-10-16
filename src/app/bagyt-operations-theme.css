@@ -1,0 +1,517 @@
+/* Complete theme coverage for the existing business workflows. */
+.studio-shell
+  :is(
+    .studio-card,
+    .studio-metrics-row,
+    .demo-stat,
+    .hub-contact-cards > button,
+    .hub-outline-button,
+    .studio-search-field,
+    .hub-conversation-body
+  ) {
+  background: var(--b-surface);
+  color: var(--b-ink);
+  border-color: var(--b-line);
+}
+.studio-shell :is(.studio-card, .studio-metrics-row, .demo-stat) {
+  box-shadow: none;
+}
+.studio-shell
+  :is(
+    .studio-inline-insight,
+    .studio-order-parties,
+    .studio-order-total,
+    .studio-stock-callout,
+    .studio-rule-flow > div,
+    .studio-automation-banner,
+    .studio-rule-result,
+    .hub-sync-result
+  ) {
+  background: var(--b-soft);
+  color: var(--b-ink);
+  border-color: var(--b-line);
+}
+.studio-shell
+  :is(
+    .studio-rule-flow > div:last-child,
+    .studio-rule-result,
+    .hub-sync-result,
+    .studio-stock-callout
+  ) {
+  background: var(--b-tint);
+}
+.studio-shell
+  :is(
+    .hub-review blockquote,
+    .hub-next-step b,
+    .hub-next-step span,
+    .hub-context-note b,
+    .hub-source strong,
+    .studio-inline-insight b,
+    .studio-order-timeline b,
+    .studio-order-timeline .done b,
+    .studio-stock-callout strong,
+    .demo-stat strong
+  ) {
+  color: var(--b-ink);
+}
+.studio-shell
+  :is(
+    .hub-dialog > header span,
+    .hub-compose label,
+    .hub-customer-context label,
+    .hub-customer-context dt,
+    .hub-date,
+    .hub-plan > .hub-section-heading > span,
+    .hub-source > div:not(.hub-section-heading)
+  ) {
+  color: var(--b-muted);
+}
+.studio-shell
+  .studio-operations
+  :is(
+    p,
+    small,
+    dt,
+    .studio-eyebrow,
+    .studio-order-item span,
+    .studio-order-parties em,
+    .studio-order-total span,
+    .studio-order-actions > span,
+    .studio-quote-total > span,
+    .studio-supplier-price span,
+    .studio-metrics-row span
+  ) {
+  color: var(--b-muted);
+}
+.studio-shell
+  :is(
+    .demo-stat > div,
+    .demo-stat > small,
+    .demo-settings label,
+    .studio-card-header p,
+    .studio-card-footer,
+    .studio-card-footer button,
+    .studio-card-footer span,
+    .studio-search-field,
+    .studio-tab-list button
+  ) {
+  color: var(--b-muted);
+}
+.studio-shell
+  :is(
+    .studio-product-link,
+    .studio-card h2,
+    .studio-card h3,
+    .studio-order-item strong,
+    .studio-quote-total strong,
+    .studio-supplier-price strong,
+    .studio-metrics-row strong
+  ) {
+  color: var(--b-ink);
+}
+.studio-shell
+  :is(
+    .studio-inline-insight > button,
+    .studio-tab-list button[aria-pressed="true"],
+    .studio-icon-button:hover,
+    .hub-outline-button:hover
+  ) {
+  background: var(--b-soft);
+  border-color: var(--b-line);
+  color: var(--b-ink);
+}
+.studio-shell
+  :is(
+    .studio-text-link,
+    .hub-next-step span,
+    .hub-context-note b,
+    .studio-stock-callout strong
+  ) {
+  color: var(--b-green);
+}
+.studio-shell
+  :is(
+    .studio-card-header,
+    .studio-table-toolbar,
+    .studio-card-footer,
+    .studio-metrics-row > div,
+    .studio-order-item,
+    .studio-order-costs,
+    .studio-supplier dl,
+    .studio-quote-request,
+    .studio-quote-requests > .studio-text-link,
+    .hub-customer-context dl,
+    .hub-timeline > div,
+    .hub-next-step span,
+    .hub-source > small
+  ) {
+  border-color: var(--b-line);
+}
+.studio-shell :is(.studio-rule-flow > div, .studio-order-timeline i) {
+  background: var(--b-soft);
+  border-color: var(--b-line);
+  color: var(--b-muted);
+}
+.studio-shell .studio-order-timeline .done i {
+  background: var(--b-tint);
+  color: var(--b-green);
+  border-color: var(--b-green);
+}
+.studio-shell .studio-order-timeline > div:not(:last-child)::before {
+  background: var(--b-line);
+}
+.studio-shell
+  :is(
+    .studio-rule-icon,
+    .studio-automation-icon,
+    .studio-supplier-top > span:first-child,
+    .hub-signal-icon
+  ) {
+  background: var(--b-tint);
+  color: var(--b-green);
+}
+.studio-shell .studio-supplier.current {
+  border-color: var(--b-green);
+  box-shadow: 0 0 0 1px var(--b-green);
+}
+.studio-shell .studio-rule button[role="switch"] {
+  background: var(--b-line);
+}
+.studio-shell .studio-rule button[aria-checked="true"] {
+  background: #0c976a;
+}
+.studio-shell .studio-rule button[role="switch"] i {
+  background: #fff;
+}
+.studio-shell .hub-contact-cards > button.selected {
+  background: var(--b-soft);
+  border-color: var(--b-green);
+}
+.studio-shell .hub-timeline-dot {
+  border-color: var(--b-surface);
+  background: var(--b-green);
+}
+.studio-shell .hub-empty {
+  color: var(--b-muted);
+}
+.studio-shell .hub-task.complete b {
+  color: var(--b-muted);
+}
+.studio-shell .hub-task > button {
+  color: var(--b-green);
+}
+.studio-shell .hub-task > button > span {
+  border-color: var(--b-muted);
+}
+.studio-shell
+  .studio-operations
+  :is(.studio-rule-flow > div:last-child, .studio-rule-result) {
+  background: var(--b-tint);
+}
+
+/* Keep success, waiting, and urgent states distinct in both themes. */
+html[data-theme="dark"]
+  .studio-shell
+  :is(.studio-pill.green, .paid-pill, .hub-thread em.is-done) {
+  background: #113526;
+  color: #8ce7b7;
+  border-color: #285c43;
+}
+html[data-theme="dark"] .studio-shell :is(.studio-pill.amber, .hub-count) {
+  background: #372a16;
+  color: #edc17c;
+  border-color: #6b502a;
+}
+html[data-theme="dark"] .studio-shell .studio-pill.neutral {
+  background: #242424;
+  color: #b9b9b9;
+  border-color: #383838;
+}
+html[data-theme="dark"] .studio-shell .warning-text {
+  color: #edc17c !important;
+}
+html[data-theme="dark"] .studio-shell .hub-thread em {
+  color: #edc17c;
+}
+html[data-theme="dark"] .studio-shell .hub-thread em.is-urgent {
+  color: #f1a18d;
+}
+html[data-theme="dark"] .studio-shell .hub-thread em.is-done {
+  color: #8ce7b7;
+}
+html[data-theme="dark"] .studio-shell .hub-stars {
+  color: #d9c98a;
+}
+html[data-theme="dark"] .studio-shell .hub-stars > span {
+  color: #505044;
+}
+html[data-theme="dark"]
+  .studio-shell
+  :is(.studio-product-mark, .demo-stat > div i) {
+  filter: brightness(0.8) saturate(0.65);
+}
+html[data-theme="dark"] .studio-shell .studio-stock-track {
+  background: #262f27;
+}
+html[data-theme="dark"] .studio-shell .studio-stock-track i {
+  background: #69b58a;
+}
+html[data-theme="dark"] .studio-shell .studio-stock-track.low i {
+  background: #d5aa68;
+}
+html[data-theme="dark"] .studio-shell .demo-stat > div i svg {
+  color: #182d23;
+}
+html[data-theme="dark"] .studio-shell .hub-sync .hub-sync-result {
+  color: #8ce7b7;
+}
+
+/* These modals live inside the demo root, outside the workspace container. */
+.studio-shell .modal {
+  background: var(--b-surface);
+  color: var(--b-ink);
+  border-color: var(--b-line);
+}
+.studio-shell .modal-head {
+  background: var(--b-surface);
+  color: var(--b-ink);
+  border-color: var(--b-line);
+}
+.studio-shell .modal :is(h2, h3, dd, .studio-alert-list b) {
+  color: var(--b-ink);
+}
+.studio-shell
+  .modal
+  :is(
+    label,
+    dt,
+    .purchase-flow > p,
+    .studio-alert-list > p,
+    .studio-alert-list small,
+    .demo-notification p
+  ) {
+  color: var(--b-muted);
+}
+.studio-shell .modal :is(input, select, textarea) {
+  background: var(--b-surface);
+  border-color: var(--b-line);
+  color: var(--b-ink);
+}
+.studio-shell .studio-command-menu > label {
+  border-color: var(--b-line);
+  color: var(--b-muted);
+}
+.studio-shell .studio-command-menu > div > button {
+  color: var(--b-ink);
+}
+.studio-shell .studio-command-menu > div > button:hover {
+  background: var(--b-soft);
+}
+.studio-shell .studio-alert-list > button {
+  background: var(--b-surface);
+  color: var(--b-ink);
+  border-color: var(--b-line);
+}
+.studio-shell .studio-alert-list > button:hover {
+  background: var(--b-soft);
+  border-color: var(--b-green);
+}
+.studio-shell .studio-alert-list > button > span {
+  background: var(--b-tint);
+  color: var(--b-green);
+}
+.studio-shell :is(.purchase-flow dl, .purchase-flow dl > div) {
+  border-color: var(--b-line);
+}
+.studio-shell .flow-steps > span {
+  color: var(--b-muted);
+}
+.studio-shell .flow-steps i {
+  border-color: var(--b-line);
+}
+.studio-shell .flow-steps .done {
+  color: var(--b-green);
+}
+.studio-shell .flow-steps .done i {
+  background: var(--b-tint);
+  border-color: var(--b-green);
+}
+.studio-shell :is(.demo-notice, .receipt-success) {
+  background: var(--b-tint);
+  color: var(--b-green);
+}
+.studio-shell .purchase-flow > p.demo-notice {
+  color: var(--b-green);
+}
+
+/* The assistant rail changes content width, independently of viewport width. */
+@container (max-width: 700px) {
+  .studio-shell .hub-inbox,
+  .studio-shell .hub-inbox.details-hidden {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 0;
+  }
+  .studio-shell .hub-thread-list {
+    display: block;
+    max-height: none;
+    border-right: 0;
+    padding-bottom: 0;
+  }
+  .studio-shell .hub-dialog,
+  .studio-shell .hub-customer-context {
+    display: none;
+  }
+  .studio-shell .hub-inbox.is-conversation .hub-thread-list {
+    display: none;
+  }
+  .studio-shell .hub-inbox.is-conversation .hub-dialog {
+    display: flex;
+    min-height: 0;
+  }
+  .studio-shell
+    .hub-inbox.is-conversation:not(.details-hidden)
+    .hub-customer-context {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .studio-shell .hub-inbox.is-conversation .studio-inbox-back {
+    display: grid;
+  }
+  .studio-shell .hub-dialog > header {
+    padding: 16px;
+    gap: 10px;
+  }
+  .studio-shell .hub-dialog > header > div {
+    min-width: 0;
+  }
+  .studio-shell .hub-dialog > header h3 {
+    font-size: 17px;
+  }
+  .studio-shell .hub-conversation-body {
+    min-height: 240px;
+    max-height: 400px;
+    padding: 18px;
+  }
+  .studio-shell .hub-compose {
+    padding: 16px;
+  }
+  .studio-shell .hub-compose > div {
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+  .studio-shell .hub-compose > div > small {
+    flex: 1;
+    min-width: 150px;
+  }
+  .studio-shell .hub-compose .dark-button {
+    justify-content: center;
+    min-height: 42px;
+  }
+  .studio-shell .hub-crm-grid,
+  .studio-shell .hub-reviews-grid,
+  .studio-shell .hub-growth-grid,
+  .studio-shell .hub-sources-grid,
+  .studio-shell .studio-procurement-grid,
+  .studio-shell .studio-supplier-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .studio-shell .hub-mini-stats,
+  .studio-shell .studio-metrics-row,
+  .studio-shell .demo-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .studio-shell .studio-metrics-row {
+    padding: 0;
+  }
+  .studio-shell .studio-metrics-row > div {
+    padding: 20px;
+    border-bottom: 1px solid var(--b-line);
+  }
+  .studio-shell .studio-metrics-row > div:nth-child(2n) {
+    border-right: 0;
+  }
+  .studio-shell .studio-metrics-row > div:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+  .studio-shell .studio-metrics-row strong {
+    font-size: 25px;
+  }
+  .studio-shell .studio-inline-insight {
+    flex-wrap: wrap;
+  }
+  .studio-shell .studio-inline-insight > div {
+    min-width: min(240px, 100%);
+  }
+  .studio-shell .studio-rule-flow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .studio-shell .studio-rule-flow > svg {
+    transform: rotate(90deg);
+    margin: auto;
+  }
+  .studio-shell .studio-rule-flow > div {
+    padding: 16px;
+  }
+  .studio-shell .studio-order-actions {
+    flex-wrap: wrap;
+  }
+  .studio-shell .studio-order-parties {
+    grid-template-columns: 1fr;
+  }
+  .studio-shell .studio-table-toolbar {
+    flex-wrap: wrap;
+  }
+  .studio-shell .studio-table-toolbar .studio-search-field {
+    width: 100%;
+    max-width: none;
+  }
+  .studio-shell .hub-review blockquote {
+    min-height: 0;
+  }
+  .studio-shell .hub-source p {
+    min-height: 0;
+  }
+  .studio-shell .hub-sync > div {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+  .studio-shell .hub-sync-result {
+    flex-wrap: wrap;
+  }
+  .studio-shell .hub-sync-result > button {
+    margin-left: 0;
+  }
+  .studio-shell .b-metrics {
+    gap: 10px;
+  }
+  .studio-shell .b-metrics > button {
+    padding: 16px 12px;
+  }
+  .studio-shell .b-metrics strong {
+    font-size: 23px;
+    display: block;
+    margin: 14px 0;
+  }
+  .studio-shell .b-metrics em {
+    display: block;
+    font-size: 11px;
+    margin-top: 3px;
+  }
+  .studio-shell .b-metrics > button > span {
+    font-size: 11px;
+  }
+  .studio-shell .b-metrics small {
+    font-size: 10px;
+    line-height: 1.5;
+  }
+  .studio-shell .b-metrics small > svg {
+    display: none;
+  }
+}

@@ -7,3 +7,5 @@ data
 test-output
 *.log
 *.tsbuildinfo
+
+artifacts

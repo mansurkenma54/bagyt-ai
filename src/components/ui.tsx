@@ -3,148 +3,23 @@ import { useEffect, useRef, useState } from "react";
 import { X, ArrowUpRight, ArrowDownRight, Compass } from "lucide-react";
 export function Logo() {
   return (
-    <div className="brand">
-      <span className="brand-icon">
-        <img src="/brand-mark.svg" width={38} height={38} alt="" />
+    <div className="brand bagyt-brand">
+      <span className="brand-icon" aria-hidden="true">
+        <svg className="bagyt-mark" viewBox="0 0 64 64" fill="currentColor">
+          <g transform="translate(6 4) scale(.32)">
+            <path d="M0 0H62C95 0 116 24 116 53C116 66 111 77 102 84H117C143 84 160 102 160 125C160 154 139 174 107 174H0L48 142H81C98 142 109 133 109 120C109 107 98 98 81 98H72L48 76H61C74 76 81 68 81 58C81 47 74 39 61 39H0V0Z" />
+            <path d="M0 59L72 110L0 161V59Z" />
+          </g>
+        </svg>
       </span>
       <span className="brand-word">
-        <b>
-          BAGYT<span> AI</span>
-        </b>
-        <small>БИЗНЕС КӨМЕКШІСІ</small>
+        <b>Bagyt</b>
+        <small>Bizneske anyq baǵyt</small>
       </span>
     </div>
   );
 }
-export function Robot({
-  size = 72,
-  state = "greeting",
-  onClick,
-  label,
-}: {
-  size?: number;
-  state?: string;
-  onClick?: () => void;
-  label?: string;
-}) {
-  const [mood, setMood] = useState("idle");
-  const [hover, setHover] = useState(false);
-  const fixed =
-    state === "loading" || state === "thinking"
-      ? "thinking"
-      : state === "success"
-        ? "happy"
-        : state === "risk" || state === "curious"
-          ? "curious"
-          : null;
-  const emotion = fixed || (hover ? "happy" : mood);
-  useEffect(() => {
-    if (fixed) return;
-    const timer = setInterval(
-      () =>
-        setMood((m) =>
-          m === "idle" ? "curious" : m === "curious" ? "sleepy" : "idle",
-        ),
-      12000,
-    );
-    return () => clearInterval(timer);
-  }, [fixed]);
-  const names: Record<string, string> = {
-    idle: "готов помочь / көмектесуге дайын",
-    happy: "радуется / қуанып тұр",
-    curious: "интересуется / қызығып тұр",
-    thinking: "думает / ойланып тұр",
-    sleepy: "отдыхает / демалып тұр",
-  };
-  return (
-    <button
-      type="button"
-      className={`robot soul-robot mood-${emotion}`}
-      style={{ width: size, height: size }}
-      aria-label={
-        label ||
-        `AQYL: ${names[emotion]}. Нажмите, чтобы сменить настроение / Көңіл күйін өзгерту`
-      }
-      onPointerEnter={() => setHover(true)}
-      onPointerLeave={() => setHover(false)}
-      onClick={() => {
-        onClick?.();
-        setHover(false);
-        setMood((m) =>
-          m === "happy" ? "curious" : m === "curious" ? "sleepy" : "happy",
-        );
-      }}
-    >
-      <svg
-        viewBox="0 0 120 120"
-        fill="none"
-        aria-hidden="true"
-        shapeRendering="crispEdges"
-      >
-        <ellipse
-          className="aqyl-ground"
-          cx="59"
-          cy="110"
-          rx="35"
-          ry="3"
-          fill="#00d89022"
-        />
-        <g className="aqyl-soul">
-          <path d="M57 19h5v19h-5z" fill="#05c880" />
-          <path
-            className="aqyl-heart"
-            d="M49 9h8v4h5V9h8v4h4v9h-4v4h-5v4h-5v4h-5v-4h-5v-4h-5v-4h-4v-9h4V9z"
-            fill="#28f5a4"
-          />
-          <path d="M49 13h6v4h-6z" fill="#bdffe0" />
-          <path
-            d="M30 35h60v5h10v10h5v38h-5v10H83v11H71V98H30v-5H20V83h-5V50h5V40h10Z"
-            fill="#008d59"
-          />
-          <path d="M30 35h60v5h10v10H20V40h10Z" fill="#9bffd1" />
-          <path d="M26 43h68v7h6v34h-6v9H28v-6h-7V51h5Z" fill="#19df91" />
-          <path d="M31 49h56v5h7v25h-7v8H31v-6h-5V55h5Z" fill="#031e15" />
-          <path d="M6 56h9v23H6zM105 56h9v23h-9z" fill="#3bf4ae" />
-          <path d="M10 61h5v13h-5zM105 61h5v13h-5z" fill="#00ad70" />
-          <g className="soul-eyes soul-normal" fill="#42ffc0">
-            <path d="M38 60h8v11h-8zM73 60h8v11h-8z" />
-            <path d="M39 61h3v3h-3zM74 61h3v3h-3z" fill="#d9fff0" />
-          </g>
-          <g className="soul-eyes soul-happy" stroke="#42ffc0" strokeWidth="4">
-            <path d="M36 68v-5h4v-3h5v3h4v5M70 68v-5h4v-3h5v3h4v5" />
-          </g>
-          <g className="soul-eyes soul-curious" fill="#42ffc0">
-            <path d="M36 63h12v4H36zM73 57h8v13h-8zM36 55h12v3H36z" />
-          </g>
-          <g className="soul-eyes soul-sleepy" stroke="#26da98" strokeWidth="3">
-            <path d="M36 68h14m19 0h14" />
-          </g>
-          <g className="soul-eyes soul-thinking" fill="#42ffc0">
-            <path d="M42 58h7v10h-7zM77 58h7v10h-7z" />
-          </g>
-          <path
-            className="soul-smile"
-            d="M52 74v4h13v-4"
-            stroke="#3fffb7"
-            strokeWidth="3"
-          />
-          <path d="M33 74h7v3h-7zM79 74h7v3h-7z" fill="#077448" />
-          <path d="M76 93h13v5h-7v6h-6Z" fill="#19df91" />
-        </g>
-        <g className="soul-thought" fill="#18d993">
-          <rect x="91" y="20" width="4" height="4" />
-          <rect x="100" y="15" width="5" height="5" />
-          <rect x="110" y="9" width="6" height="6" />
-        </g>
-        <path
-          className="soul-spark"
-          d="M10 26h4v-5h4v5h5v4h-5v5h-4v-5h-4Z"
-          fill="#61ffc2"
-        />
-      </svg>
-    </button>
-  );
-}
+export { default as Robot } from "./belgi-robot";
 export function Badge({
   children,
   color = "green",
@@ -186,7 +61,13 @@ export function Modal({
         if (!nodes?.length) return;
         const first = nodes[0],
           last = nodes[nodes.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
+        if (
+          !ref.current?.contains(document.activeElement) ||
+          document.activeElement === ref.current
+        ) {
+          e.preventDefault();
+          (e.shiftKey ? last : first).focus();
+        } else if (e.shiftKey && document.activeElement === first) {
           e.preventDefault();
           last.focus();
         } else if (!e.shiftKey && document.activeElement === last) {

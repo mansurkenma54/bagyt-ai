@@ -1,0 +1,287 @@
+/* A fixed head silhouette; only eyes/mouth use masked expression frames. */
+.belgi-robot.agent-character {
+  position: relative;
+  display: inline-flex;
+  isolation: isolate;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible;
+  flex-shrink: 0;
+  cursor: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+button.belgi-robot.agent-character {
+  cursor: pointer;
+}
+.agent-character:focus-visible {
+  outline: 2px solid #18af7d !important;
+  outline-offset: 3px;
+  border-radius: 30%;
+}
+.agent-render-body {
+  position: absolute;
+  inset: 5%;
+  display: block;
+  transform-origin: 50% 60%;
+  animation: head-float 6s ease-in-out infinite;
+  pointer-events: none;
+}
+.agent-head-core {
+  position: absolute;
+  inset: 0;
+  transform: perspective(400px) rotateY(var(--look-x, 0deg))
+    rotateX(var(--look-y, 0deg));
+  transition: transform 0.35s ease;
+}
+.agent-head-base,
+.agent-head-eyes,
+.agent-head-mouth,
+.agent-head-blink,
+.agent-head-speaking {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+.agent-head-base,
+.agent-head-blink,
+.agent-head-speaking {
+  background-image: var(--agent-image);
+  background-size: 200% 200%;
+  background-repeat: no-repeat;
+}
+.agent-head-base {
+  background-position: 0 0;
+}
+.agent-head-eyes {
+  mask-image: var(--eye-mask);
+  -webkit-mask-image: var(--eye-mask);
+  opacity: 0;
+  animation: head-blink 7s linear infinite;
+}
+.agent-head-blink {
+  background-position: 100% 0;
+  transform: translate(var(--blink-x), var(--blink-y));
+}
+.agent-head-mouth {
+  mask-image: var(--mouth-mask);
+  -webkit-mask-image: var(--mouth-mask);
+  opacity: 0;
+}
+.agent-head-speaking {
+  background-position: 100% 100%;
+  transform: translate(var(--mouth-x), var(--mouth-y));
+}
+.agent-sana .agent-head-eyes {
+  animation-delay: -2.3s;
+}
+.agent-qor .agent-head-eyes {
+  animation-delay: -4.6s;
+}
+.agent-render-shadow {
+  position: absolute;
+  bottom: 1%;
+  left: 28%;
+  right: 28%;
+  height: 5%;
+  border-radius: 50%;
+  background: #06251920;
+  filter: blur(5px);
+  animation: head-shadow 6s ease-in-out infinite;
+}
+.agent-rendered.emotion-happy .agent-render-body {
+  animation: head-hello 4.8s ease-in-out infinite;
+}
+.agent-rendered.emotion-greeting .agent-render-body {
+  animation:
+    head-greet 1.2s ease-out 1,
+    head-float 6s ease-in-out 1.2s infinite;
+}
+.agent-rendered.emotion-thinking .agent-render-body {
+  animation: head-think 4.4s ease-in-out infinite;
+}
+.agent-rendered.emotion-curious .agent-render-body {
+  animation: head-curious 5.5s ease-in-out infinite;
+}
+.agent-rendered[data-state="celebrate"] .agent-render-body,
+.agent-rendered[data-state="success"] .agent-render-body {
+  animation:
+    head-celebrate 1.1s ease-out 1,
+    head-float 6s ease-in-out 1.1s infinite;
+}
+.agent-rendered.emotion-talking .agent-head-mouth {
+  animation: head-talk 0.8s ease-in-out infinite;
+}
+.agent-rendered.emotion-sleeping .agent-head-eyes {
+  animation: none;
+  opacity: 1;
+}
+.agent-rendered.emotion-sleeping .agent-render-body {
+  animation-duration: 9s;
+}
+.agent-render-thoughts {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: flex;
+  gap: 3px;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--b-surface, #fff);
+  box-shadow: 0 2px 8px #0001;
+}
+.agent-render-thoughts i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--b-muted, #69746f);
+  animation: head-dot 1.5s ease-in-out infinite;
+}
+.agent-render-thoughts i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.agent-render-thoughts i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.agent-rendered[data-compact] .agent-render-body,
+.agent-rendered[data-compact] .agent-head-eyes,
+.agent-rendered[data-compact] .agent-render-shadow {
+  animation: none;
+}
+.agent-rendered[data-compact] .agent-render-shadow {
+  display: none;
+}
+@keyframes head-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+@keyframes head-blink {
+  0%,
+  42%,
+  46%,
+  100% {
+    opacity: 0;
+  }
+  43%,
+  44.5% {
+    opacity: 1;
+  }
+}
+@keyframes head-shadow {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scaleX(0.9);
+  }
+}
+@keyframes head-hello {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  20% {
+    transform: rotate(-2deg) translateY(-2px);
+  }
+  38% {
+    transform: rotate(1.5deg) translateY(-1px);
+  }
+}
+@keyframes head-think {
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+  50% {
+    transform: rotate(2deg) translateY(-1px);
+  }
+}
+@keyframes head-greet {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-5deg) translateY(-1%);
+  }
+  60% {
+    transform: rotate(3deg);
+  }
+  80% {
+    transform: rotate(-1deg);
+  }
+}
+@keyframes head-curious {
+  0%,
+  18%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  42%,
+  66% {
+    transform: rotate(-6deg) translateY(-1.5%);
+  }
+}
+@keyframes head-celebrate {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0) scale(1);
+  }
+  36% {
+    transform: translateY(-5%) rotate(-2deg) scale(1.015);
+  }
+  70% {
+    transform: translateY(-1%) rotate(1deg) scale(1);
+  }
+}
+@keyframes head-talk {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  35%,
+  65% {
+    opacity: 1;
+  }
+}
+@keyframes head-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+html[data-aqyl-motion="paused"] .agent-character *,
+.agent-is-paused .agent-character *,
+.is-paused .agent-character *,
+[data-motion="paused"] .agent-character * {
+  animation-play-state: paused !important;
+}
+html[data-aqyl-motion="paused"] .agent-head-core,
+.agent-is-paused .agent-head-core,
+.is-paused .agent-head-core {
+  transform: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .belgi-robot.agent-character * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .agent-head-core {
+    transform: none !important;
+  }
+}

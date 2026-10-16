@@ -53,9 +53,11 @@ import {
 import { api, Logo, Robot, Badge, Modal, Stat, Empty, download } from "./ui";
 import Importer from "./importer";
 import Connector from "./connector";
+import ChannelIcon from "./channel-icon";
 import Onboarding from "./onboarding";
 import Landing from "./landing";
 import AqylCompanion from "./aqyl-companion";
+import ThemeToggle from "./theme-toggle";
 import DailyPlanView from "./daily-plan";
 import {
   aqylActions,
@@ -64,6 +66,12 @@ import {
 } from "@/lib/aqyl-actions";
 import BusinessBrief, { GuidedAssistant } from "./business-brief";
 import { money, dayKey, Event, Task, Insight, cents } from "@/lib/types";
+import {
+  DEFAULT_UI_LANGUAGE,
+  readUiLanguage,
+  saveUiLanguageChoice,
+  type UiLanguage,
+} from "@/lib/ui-language";
 const icons = [LayoutDashboard, Plug, Lightbulb, Route, BarChart3, Settings];
 const keys = [
   "overview",
@@ -75,17 +83,17 @@ const keys = [
 ];
 const ru = [
   "Главное",
-  "Мои данные",
-  "Разбор AQYL",
-  "Мои дела",
+  "Данные и интеграции",
+  "Разбор BELGI AI",
+  "Задачи и план",
   "Результаты",
   "Настройки",
 ];
 const kk = [
   "Басты бет",
-  "Деректерім",
-  "AQYL талдауы",
-  "Істерім",
+  "Деректер мен байланыстар",
+  "BELGI AI талдауы",
+  "Тапсырмалар мен жоспар",
   "Нәтижелер",
   "Баптаулар",
 ];
@@ -124,7 +132,8 @@ const kindKk: Record<string, string> = {
   review: "Пікір",
 };
 export default function Bagyt() {
-  const [language, setLanguage] = useState<"ru" | "kk">("ru"),
+  const [language, setLanguage] = useState<UiLanguage>(DEFAULT_UI_LANGUAGE),
+    [languageReady, setLanguageReady] = useState(false),
     [data, setData] = useState<any>(null),
     [loading, setLoading] = useState(true),
     [showLanding, setShowLanding] = useState(false),
@@ -149,6 +158,10 @@ export default function Bagyt() {
     [webhook, setWebhook] = useState<any>(null),
     [ocr, setOcr] = useState<any>(null);
   const t = (r: string, k: string) => (language === "ru" ? r : k);
+  const chooseLanguage = (next: UiLanguage) => {
+    setLanguage(next);
+    saveUiLanguageChoice(next);
+  };
   const reload = useCallback(async () => {
     try {
       setData(await api("bootstrap?days=" + days + "&lang=" + language));
@@ -166,14 +179,13 @@ export default function Bagyt() {
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("view") === "about")
       setShowLanding(true);
-    const l = localStorage.getItem("bagyt-language");
-    if (l === "kk") setLanguage(l);
+    setLanguage(readUiLanguage());
+    setLanguageReady(true);
   }, []);
   useEffect(() => {
-    reload();
-  }, [reload]);
+    if (languageReady) reload();
+  }, [reload, languageReady]);
   useEffect(() => {
-    localStorage.setItem("bagyt-language", language);
     document.documentElement.lang = language;
   }, [language]);
   useEffect(() => {
@@ -378,13 +390,21 @@ export default function Bagyt() {
       {!data || showLanding ? (
         <Landing
           language={language}
-          onAssistant={() => setCompanionOpen(true)}
-          onLanguage={() => setLanguage(language === "ru" ? "kk" : "ru")}
+          onAssistant={() => {
+            window.location.href = "/demo?agent=belgi";
+          }}
+          onLanguage={() => chooseLanguage(language === "ru" ? "kk" : "ru")}
           onRegister={(industry) => open({ type: "register", industry })}
           hasAccount={!!data}
-          onLogin={() =>
-            data ? setShowLanding(false) : open({ type: "login" })
-          }
+          onLogin={() => {
+            if (!data) return open({ type: "login" });
+            const url = new URL(window.location.href);
+            url.searchParams.delete("view");
+            url.hash = "";
+            window.history.replaceState({}, "", url);
+            setShowLanding(false);
+            window.scrollTo({ top: 0, behavior: "instant" });
+          }}
         />
       ) : (
         <div className="app-shell">
@@ -432,6 +452,11 @@ export default function Bagyt() {
               })}
             </nav>
             <div className="sidebar-bottom">
+              <a className="about-project-button" href="/demo">
+                <LayoutDashboard size={16} />
+                {t("Демо BAGYT + BELGI", "BAGYT + BELGI демосы")}
+                <ArrowUpRight size={14} />
+              </a>
               <button
                 className="about-project-button"
                 onClick={() => {
@@ -448,9 +473,9 @@ export default function Bagyt() {
                 <Robot
                   size={45}
                   onClick={() => setCompanionOpen(true)}
-                  label={t("Спросить AQYL", "AQYL-дан сұрау")}
+                  label={t("Спросить BELGI AI", "BELGI AI-дан сұрау")}
                 />
-                <b>AQYL {t("рядом", "қасыңызда")}</b>
+                <b>BELGI AI {t("рядом", "қасыңызда")}</b>
                 <p>
                   {t(
                     "Помогу разобраться в данных и выбрать следующий шаг.",
@@ -499,6 +524,7 @@ export default function Bagyt() {
                 <b>{(language === "ru" ? ru : kk)[keys.indexOf(section)]}</b>
               </div>
               <div className="top-actions">
+                <ThemeToggle />
                 {data.org.demo && (
                   <Badge color="amber">
                     {t("Синтетическое демо", "Синтетикалық демо")}
@@ -510,7 +536,9 @@ export default function Bagyt() {
                 </span>
                 <button
                   className="lang"
-                  onClick={() => setLanguage(language === "ru" ? "kk" : "ru")}
+                  onClick={() =>
+                    chooseLanguage(language === "ru" ? "kk" : "ru")
+                  }
                 >
                   {language === "ru" ? "RU" : "KZ"}
                   <ChevronDown size={12} />
@@ -875,7 +903,13 @@ export default function Bagyt() {
                                     className="source-icon"
                                     style={{ color: s.color }}
                                   >
-                                    {s.letter}
+                                    {/kaspi|каспи|tik[\s._-]*tok|тикток/i.test(
+                                      s.name,
+                                    ) ? (
+                                      <ChannelIcon source={s.name} size={30} />
+                                    ) : (
+                                      s.letter
+                                    )}
                                   </span>
                                   <div>
                                     <b>{s.title}</b>
@@ -965,7 +999,10 @@ export default function Bagyt() {
                   <section className="connect-welcome">
                     <div>
                       <span className="pixel-kicker">
-                        {t("ПЕРВЫЕ ШАГИ С AQYL", "AQYL-МЕН АЛҒАШҚЫ ҚАДАМДАР")}
+                        {t(
+                          "ПЕРВЫЕ ШАГИ С BELGI AI",
+                          "BELGI AI-МЕН АЛҒАШҚЫ ҚАДАМДАР",
+                        )}
                       </span>
                       <h2>
                         {t(
@@ -975,8 +1012,8 @@ export default function Bagyt() {
                       </h2>
                       <p>
                         {t(
-                          "Загрузите данные, проверьте записи — AQYL автоматически обновит разбор.",
-                          "Деректерді жүктеп, жазбаларды тексеріңіз — AQYL талдауды автоматты жаңартады.",
+                          "Загрузите данные, проверьте записи — BELGI AI автоматически обновит разбор.",
+                          "Деректерді жүктеп, жазбаларды тексеріңіз — BELGI AI талдауды автоматты жаңартады.",
                         )}
                       </p>
                       <div className="setup-steps">
@@ -997,7 +1034,7 @@ export default function Bagyt() {
                     <Robot
                       size={132}
                       onClick={() => setCompanionOpen(true)}
-                      label={t("Спросить AQYL", "AQYL-дан сұрау")}
+                      label={t("Спросить BELGI AI", "BELGI AI-дан сұрау")}
                       state={
                         busy
                           ? "thinking"
@@ -1089,7 +1126,13 @@ export default function Bagyt() {
                               className="source-icon large"
                               style={{ color: s.color }}
                             >
-                              {s.letter}
+                              {/kaspi|каспи|tik[\s._-]*tok|тикток/i.test(
+                                s.name,
+                              ) ? (
+                                <ChannelIcon source={s.name} size={40} />
+                              ) : (
+                                s.letter
+                              )}
                             </span>
                             <Badge
                               color={
@@ -1331,8 +1374,8 @@ export default function Bagyt() {
                       <Sparkles size={20} />
                       <span>
                         {t(
-                          "AQYL · Проверяемые правила и точные расчеты",
-                          "AQYL · Тексерілетін ережелер және дәл есептер",
+                          "BELGI AI · Проверяемые правила и точные расчеты",
+                          "BELGI AI · Тексерілетін ережелер және дәл есептер",
                         )}
                       </span>
                     </div>
@@ -1373,8 +1416,8 @@ export default function Bagyt() {
                           onClick={() => open({ type: "evidence", insight: i })}
                         >
                           {t(
-                            "Почему AQYL так считает",
-                            "AQYL неге бұлай есептейді",
+                            "Почему BELGI AI так считает",
+                            "BELGI AI неге бұлай есептейді",
                           )}
                           <ArrowRight size={16} />
                         </button>
@@ -1491,10 +1534,10 @@ export default function Bagyt() {
                       size={110}
                       state={busy ? "thinking" : "greeting"}
                       onClick={() => setCompanionOpen(true)}
-                      label={t("Спросить AQYL", "AQYL-дан сұрау")}
+                      label={t("Спросить BELGI AI", "BELGI AI-дан сұрау")}
                     />
                     <div>
-                      <span className="eyebrow">AQYL GROWTH PLANNER</span>
+                      <span className="eyebrow">BELGI AI GROWTH PLANNER</span>
                       <h2>
                         {t(
                           "Понятный план. Ответственный за каждый шаг.",
@@ -1537,14 +1580,14 @@ export default function Bagyt() {
                       <div className="panel-heading">
                         <div>
                           <h2>
-                            {t("Мои дела", "Өсу жоспары")} · {p.days}{" "}
+                            {t("Задачи и план", "Өсу жоспары")} · {p.days}{" "}
                             {t("дней", "күн")}
                           </h2>
                           <p>
                             {fmtDate(p.created_at)} ·{" "}
                             {t(
-                              "Правила AQYL, без генерации финансовых обещаний",
-                              "AQYL ережелері, қаржылық уәделерсіз",
+                              "Правила BELGI AI, без генерации финансовых обещаний",
+                              "BELGI AI ережелері, қаржылық уәделерсіз",
                             )}
                           </p>
                         </div>
@@ -2008,7 +2051,7 @@ export default function Bagyt() {
                       </div>
                       <div>
                         <Sparkles size={20} />
-                        <b>{t("Диалог с AQYL", "AQYL-мен диалог")}</b>
+                        <b>{t("Диалог с BELGI AI", "BELGI AI-мен диалог")}</b>
                         <Badge color={data.ai.enabled ? "green" : "muted"}>
                           {data.ai.enabled
                             ? t("Подключено", "Қосылған")
@@ -2125,7 +2168,7 @@ export default function Bagyt() {
                       : modal.type === "manual"
                         ? t("Добавить операцию", "Операция қосу")
                         : modal.type === "chat"
-                          ? "AQYL · " + t("Помощник", "Көмекші")
+                          ? "BELGI AI · " + t("Помощник", "Көмекші")
                           : modal.type === "evidence"
                             ? t(
                                 "Факты и доказательства",
@@ -2154,11 +2197,11 @@ export default function Bagyt() {
                 <Robot
                   size={48}
                   onClick={() => setCompanionOpen(true)}
-                  label={t("Спросить AQYL", "AQYL-дан сұрау")}
+                  label={t("Спросить BELGI AI", "BELGI AI-дан сұрау")}
                 />
                 <div>
                   <b>
-                    AQYL ·{" "}
+                    BELGI AI ·{" "}
                     {guideTarget
                       ? aqylActions[guideTarget].title[
                           language === "ru" ? 0 : 1
@@ -3114,38 +3157,40 @@ export default function Bagyt() {
           if (event) open({ type: "record", event });
         }}
       />
-      <AqylCompanion
-        suppressTip={dailyActive}
-        draft={assistantDraft}
-        language={language}
-        data={data}
-        section={section}
-        days={days}
-        screen={
-          modal?.type === "manual" ||
-          modal?.type === "import" ||
-          modal?.type === "connector"
-            ? modal.type
-            : "none"
-        }
-        focusedField={guideTarget || undefined}
-        onGuide={guideTo}
-        onEvidence={(id) => {
-          const record = data?.events.find((e: Event) => e.id === id);
-          if (record) open({ type: "record", event: record });
-        }}
-        landing={!data || showLanding}
-        suspended={
-          (!!modal && !["manual", "import"].includes(modal.type)) || mobile
-        }
-        open={companionOpen}
-        setOpen={setCompanionOpen}
-        onNavigate={(key) => {
-          setShowLanding(false);
-          nav(key);
-        }}
-        onRegister={() => open({ type: "register" })}
-      />
+      {data && !showLanding && (
+        <AqylCompanion
+          suppressTip={dailyActive}
+          draft={assistantDraft}
+          language={language}
+          data={data}
+          section={section}
+          days={days}
+          screen={
+            modal?.type === "manual" ||
+            modal?.type === "import" ||
+            modal?.type === "connector"
+              ? modal.type
+              : "none"
+          }
+          focusedField={guideTarget || undefined}
+          onGuide={guideTo}
+          onEvidence={(id) => {
+            const record = data?.events.find((e: Event) => e.id === id);
+            if (record) open({ type: "record", event: record });
+          }}
+          landing={false}
+          suspended={
+            (!!modal && !["manual", "import"].includes(modal.type)) || mobile
+          }
+          open={companionOpen}
+          setOpen={setCompanionOpen}
+          onNavigate={(key) => {
+            setShowLanding(false);
+            nav(key);
+          }}
+          onRegister={() => open({ type: "register" })}
+        />
+      )}
     </>
   );
 }

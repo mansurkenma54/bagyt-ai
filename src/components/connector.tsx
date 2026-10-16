@@ -10,6 +10,7 @@ import {
   Unplug,
 } from "lucide-react";
 import { api, Robot } from "./ui";
+import ChannelIcon from "./channel-icon";
 export default function Connector({
   source,
   language,
@@ -108,7 +109,13 @@ export default function Connector({
           }}
         >
           <div className="connector-intro">
-            <span className="connector-brand">{source.letter}</span>
+            <span className="connector-brand">
+              {/kaspi|каспи|tik[\s._-]*tok|тикток/i.test(source.name) ? (
+                <ChannelIcon source={source.name} size={40} />
+              ) : (
+                source.letter
+              )}
+            </span>
             <div>
               <h3>{source.title}</h3>
               <p>

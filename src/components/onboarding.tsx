@@ -126,7 +126,7 @@ export default function Onboarding({
     <div className="onboarding-layout">
       <aside className="onboarding-companion">
         <span className="pixel-kicker">
-          AQYL · {t("НАЧНЁМ ЗНАКОМСТВО", "ТАНЫСАЙЫҚ")}
+          BELGI AI · {t("НАЧНЁМ ЗНАКОМСТВО", "ТАНЫСАЙЫҚ")}
         </span>
         <Robot
           size={176}
@@ -134,7 +134,7 @@ export default function Onboarding({
         />
         <h3>
           {step === 0
-            ? t("Сәлем! Я — AQYL.", "Сәлем! Мен — AQYL.")
+            ? t("Сәлем! Я — BELGI AI.", "Сәлем! Мен — BELGI AI.")
             : step === 1
               ? t("Какую цель выберем?", "Қандай мақсат таңдаймыз?")
               : t("Уже почти готовы!", "Дайын болуға аз қалды!")}
@@ -176,7 +176,7 @@ export default function Onboarding({
         <span className="companion-caption">
           <span className="live-dot" />
           {busy
-            ? t("AQYL готовит пространство…", "AQYL кеңістікті дайындауда…")
+            ? t("BELGI AI готовит пространство…", "BELGI AI кеңістікті дайындауда…")
             : t("Я рядом на каждом шаге", "Әр қадамда қасыңыздамын")}
         </span>
       </aside>
